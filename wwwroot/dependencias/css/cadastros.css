@@ -1,0 +1,246 @@
+/**
+ * Estilos compartilhados pelas páginas independentes de cadastro.
+ * As variáveis seguem a identidade visual usada no Console NFe.
+ */
+
+:root {
+    --cor-principal: #f4a62a;
+    --cor-principal-escura: #d9890f;
+    --cor-suave: #fff6e8;
+    --cor-menu: #293750;
+    --cor-linha: #d9dee7;
+    --cor-texto: #162033;
+    --cor-secundaria: #788397;
+    --cor-fundo: #f7f8fa;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    min-width: 320px;
+    margin: 0;
+    color: var(--cor-texto);
+    background: var(--cor-fundo);
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 235px minmax(0, 1fr);
+    min-height: 100vh;
+}
+
+.menu-lateral {
+    display: flex;
+    flex-direction: column;
+    padding: 24px 18px;
+    color: #ffffff;
+    background: var(--cor-menu);
+}
+
+.marca {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+}
+
+.marca-logo {
+    display: grid;
+    width: 52px;
+    height: 52px;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--cor-principal);
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.menu-lateral nav {
+    display: grid;
+    gap: 7px;
+}
+
+.menu-lateral a {
+    padding: 12px 14px;
+    border-radius: 9px;
+    color: #dce4ef;
+    text-decoration: none;
+}
+
+.menu-lateral a:hover,
+.menu-lateral a.ativo {
+    color: #ffffff;
+    background: #ffffff18;
+}
+
+.conteudo {
+    padding: 32px;
+}
+
+.cabecalho-pagina {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 22px;
+}
+
+.cabecalho-pagina h1 {
+    margin: 0 0 6px;
+}
+
+.cabecalho-pagina p {
+    margin: 0;
+    color: var(--cor-secundaria);
+}
+
+.cartao {
+    padding: 22px;
+    border: 1px solid var(--cor-linha);
+    border-radius: 14px;
+    /* A superfície vem do tema pai; evita um retângulo branco dentro do iframe. */
+    background: var(--fa-panel, var(--cor-suave));
+}
+
+.botao-principal,
+.botao-secundario,
+.acoes-browse button {
+    min-height: 40px;
+    padding: 9px 16px;
+    border: 0;
+    border-radius: 9px;
+    font-weight: 700;
+}
+
+.botao-principal,
+.acoes-browse button {
+    color: #ffffff;
+    background: var(--cor-principal);
+}
+
+.botao-secundario {
+    color: var(--cor-principal-escura);
+    background: var(--cor-suave);
+}
+
+.browse {
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr);
+    gap: 9px;
+}
+
+.acoes-browse {
+    display: grid;
+    align-content: start;
+    gap: 7px;
+}
+
+.barra-pesquisa {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 10px;
+    background: var(--cor-suave);
+}
+
+.barra-pesquisa input {
+    min-width: 280px;
+    padding: 8px 10px;
+    border: 1px solid var(--cor-linha);
+    border-radius: 8px;
+}
+
+.grade-formulario {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px 8px;
+}
+
+.grade-formulario h2 {
+    grid-column: 1 / -1;
+    margin: 10px 0 0;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--cor-linha);
+    font-size: 14px;
+}
+
+.grade-formulario label {
+    display: grid;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.grade-formulario input,
+.grade-formulario select {
+    min-height: 36px;
+    padding: 7px 10px;
+    border: 1px solid var(--cor-linha);
+    border-radius: 7px;
+    background: var(--fa-field-bg, var(--cor-fundo));
+}
+
+.ocupa-duas-colunas {
+    grid-column: span 2;
+}
+
+.ocupa-todas-colunas {
+    grid-column: 1 / -1;
+}
+
+.acoes-formulario {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+#mensagem {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    padding: 12px 17px;
+    border-radius: 8px;
+    color: #ffffff;
+    background: var(--cor-menu);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+#mensagem.visivel {
+    opacity: 1;
+}
+
+@media (max-width: 900px) {
+    .layout {
+        grid-template-columns: 78px minmax(0, 1fr);
+    }
+
+    .marca div,
+    .menu-lateral a span {
+        display: none;
+    }
+
+    .conteudo {
+        padding: 20px;
+    }
+
+    .grade-formulario {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

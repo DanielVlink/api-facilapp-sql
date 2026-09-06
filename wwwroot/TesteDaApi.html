@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="jotape">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+        <style id="facilapp-tema-critico">html[data-theme="jotape"],html[data-theme="jotape"] body{background:#bfd5a5;color:#171a10}html[data-theme="jotape"] iframe{background:#bfd5a5}</style>
+    <title>Testes da API — FacilApp SQL</title>
+    <link rel="stylesheet" href="dependencias/themes/TemaFacilApp.css">
+    <style>
+        * { box-sizing: border-box; }
+        [hidden] { display: none !important; }
+        html, body { min-height: 100%; margin: 0; background: transparent !important; color: var(--fa-text); font: 11px Arial; }
+        body { min-height: 100vh; padding: 7px; }
+        .pagina { display: grid; gap: 7px; max-width: 1150px; margin: 0 auto; }
+        .titulo, .cartao { border: 1px solid var(--fa-border); border-radius: 7px; background: var(--fa-panel); }
+        .titulo { padding: 7px; }.titulo h1 { margin: 0; font-size: 27px; line-height: 29px; }.titulo p { margin: 2px 0 0; color: var(--fa-muted); }
+        .cartao { overflow: hidden; }.cabecalho { display: flex; justify-content: space-between; align-items: center; gap: 7px; padding: 7px 10px; background: var(--fa-panel-alt); border-bottom: 1px solid var(--fa-border); }.cabecalho h2 { margin: 0; font-size: 17px; }.cabecalho p { margin: 2px 0 0; color: var(--fa-muted); }
+        .corpo { display: grid; gap: 7px; padding: 10px; }.opcoes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }.campo { display: grid; gap: 3px; font-weight: 700; }.campo input, .campo select, textarea { width: 100%; height: 25px; padding: 3px 6px; border: 1px solid var(--fa-border); border-radius: 7px; background: var(--fa-input); color: var(--fa-text); font: 11px Arial; }.campo textarea { height: 210px; resize: vertical; padding: 6px; font-family: Consolas, monospace; line-height: 16px; }.rotulo { display: flex; justify-content: space-between; align-items: center; }.status { color: var(--fa-muted); font-weight: 400; }.acoes { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 7px; }.botao { height: 28px; padding: 3px 10px; border: 0; border-radius: 5px; background: var(--fa-primary); color: var(--fa-panel); font: 700 11px Arial; cursor: pointer; }.retorno { min-height: 180px; max-height: 330px; margin: 0; overflow: auto; padding: 7px; border: 1px solid var(--fa-border); border-radius: 7px; background: var(--fa-input); color: var(--fa-text); font: 11px Consolas, monospace; white-space: pre-wrap; }
+        @media (max-width: 760px) { .opcoes { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <main class="pagina">
+        <section class="titulo"><h1>Testes da API</h1><p>Envie exemplos controlados para a API e acompanhe o retorno.</p></section>
+        <section class="cartao">
+            <header class="cabecalho"><div><h2 id="titulo-teste">Status da API</h2><p id="descricao-teste">Consulta pública de disponibilidade do servidor.</p></div><span id="sessao" class="status">Bearer automático: não necessário</span></header>
+            <div class="corpo">
+                <div class="opcoes">
+                    <label class="campo">Serviço / Função<select id="funcao"></select></label>
+                    <label class="campo">Banco<select id="banco"><option value="sqlite">SQLite</option><option value="sqlserver">SQL Server</option><option value="postgresql">PostgreSQL</option><option value="mariadb">MariaDB</option><option value="mysql">MySQL</option><option value="oracle">Oracle</option><option value="hfsql">HFSQL</option></select></label>
+                </div>
+                <div class="opcoes" id="campos-login" hidden>
+                    <label class="campo">Usuário<input id="usuario-login" type="text" autocomplete="username"></label>
+                    <label class="campo">Senha<input id="senha-login" type="password" autocomplete="current-password"></label>
+                </div>
+                <div class="opcoes" id="campos-client-secret" hidden>
+                    <label class="campo">Client ID<input id="client-id-login" type="text" autocomplete="username"></label>
+                    <label class="campo">Client Secret<input id="client-secret-login" type="password" autocomplete="current-password"></label>
+                </div>
+                <div class="opcoes" id="campos-login-sqlite" hidden>
+                    <label class="campo">Empresa / CNPJ<select id="empresa-login"><option value="">Carregando empresas...</option></select></label>
+                    <label class="campo">Sistema<select id="sistema-login"><option value="">Carregando sistemas...</option></select></label>
+                </div>
+                <div class="opcoes" id="campos-usuario-sqlite" hidden>
+                    <label class="campo">Empresa / CNPJ<select id="empresa-usuario"><option value="">Carregando empresas...</option></select></label>
+                    <label class="campo">Sistema<select id="sistema-usuario"><option value="">Carregando sistemas...</option></select></label>
+                    <label class="campo">Nome<input id="nome-usuario" type="text" autocomplete="name"></label>
+                    <label class="campo">Usuário<input id="login-usuario" type="text" autocomplete="username"></label>
+                    <label class="campo">Senha<input id="senha-usuario" type="password" autocomplete="new-password"></label>
+                </div>
+                <label class="campo"><span class="rotulo">JSON do pedido <span class="status" id="endpoint">GET /status</span></span><textarea id="pedido" spellcheck="false"></textarea></label>
+                <div class="acoes"><button class="botao" id="enviar" type="button">Enviar comando</button><button class="botao" id="codigo-fonte" type="button">Código fonte</button></div>
+                <label class="campo">Retorno<pre class="retorno" id="retorno">O retorno aparecerá aqui.</pre></label>
+            </div>
+        </section>
+    </main>
+    <script>
+        (() => {
+            const parametros = new URLSearchParams(location.search);
+            const api = (() => {
+                if (parametros.get('api')) return parametros.get('api').replace(/\/$/, '');
+                try {
+                    const configuracao = window.SERVIDOR_API_CONFIG || window.parent?.SERVIDOR_API_CONFIG;
+                    if (configuracao?.baseURL) return String(configuracao.baseURL).replace(/\/$/, '');
+                } catch { }
+                return location.origin;
+            })();
+            const apiImpressao = `${location.protocol}//${location.hostname}:4000`;
+            // Catálogo equivalente aos exemplos oficiais expostos pela API SQL.
+            const exemplos = [
+                { nome: 'Obter Token', endpoint: '/executar', descricao: 'Renova o Bearer em memória sem enviar usuário, senha ou Client Secret.', pedido: { funcao: 'ObterToken' }, protegido: true },
+                { nome: 'Status', endpoint: '/status', descricao: 'Consulta pública de disponibilidade do servidor.', pedido: { funcao: 'status' }, publico: true },
+                { nome: 'Consultar CNPJ na Receita', endpoint: '/api/console/empresas/consultar-cnpj/{cnpj}', descricao: 'Consulta dados públicos da empresa pelo CNPJ.', pedido: { funcao: 'consultar_cnpj', cnpj: '57202784000158' }, cnpj: true },
+                { nome: 'Consultar CPF na FonteData', endpoint: '/api/console/pessoas/consultar-cpf/{cpf}', descricao: 'Consulta independente de pessoa física exclusivamente pela FonteData.', pedido: { funcao: 'consultar_cpf', cpf: 'INFORME_O_CPF' }, cpf: true },
+                { nome: 'Login SQLite completo', endpoint: '/executar', descricao: 'Indicado para uso direto da empresa e redes locais: valida CNPJ + sistema + usuário + senha e devolve o Bearer com os menus do contexto selecionado.', pedido: { funcao: 'Login', sistema_id: 'curso', cnpj: 'CNPJ_DA_EMPRESA', usuario: 'usuario.cadastrado', senha: 'INFORME_A_SENHA' }, login: true, loginCompleto: true },
+                { nome: 'Login simples Client/Secret', endpoint: '/oauth/login-simples', descricao: 'Recomendado para web, integrações e IAs. Gere um Client/Secret por empresa ou integração para não reutilizar usuários. Devolve Bearer, credencial, CNPJ, idFilial e idClient; login/senha continua disponível.', pedido: { client_id: 'CLIENT_ID_ATIVO', client_secret: 'INFORME_CLIENT_SECRET', scope: '' }, clientSecret: true, method: 'POST' },
+                { nome: 'Login VLINK', endpoint: '/executar', descricao: 'Valida usuário e senha na tabela usuarios do VLINK e devolve Bearer. Não usa CNPJ.', pedido: { funcao: 'LoginVlink', tipo_banco: 'sqlserver', banco: 'vlink', tabela_usuario: 'usuarios', campo_usuario: 'LOGIN', campo_senha: 'SENHA', usuario: 'usuario.vlink', senha: 'INFORME_A_SENHA' }, login: true, banco: true },
+                { nome: 'Listar usuários SQLite', endpoint: '/api/console/empresas/{empresaId}/usuarios', descricao: 'Lista os usuários ativos de uma empresa no SQLite interno.', pedido: { empresaId: 'ID_DA_EMPRESA' }, admin: true },
+                { nome: 'Consultar usuário SQLite', endpoint: '/api/console/empresas/{empresaId}/usuarios/{id}', descricao: 'Consulta um usuário vinculado à empresa.', pedido: { empresaId: 'ID_DA_EMPRESA', id: 'ID_DO_USUARIO' }, admin: true },
+                { nome: 'Cadastrar usuário SQLite', endpoint: '/api/console/empresas/{empresaId}/usuarios', descricao: 'Cadastra usuário vinculado ao sistema e à empresa e grava os três JSONs de menu.', pedido: { empresaId: 'ID_DA_EMPRESA', sistema_id: 'curso', nome: 'Novo usuário', usuario: 'novo.usuario', senha: 'INFORME_A_SENHA', client_id: 'CLIENT_ID_ATIVO', menu_data: [], menu_superior_data: [], dashboard_data: [] }, admin: true, usuarioSqlite: true, method: 'POST' },
+                { nome: 'Alterar usuário SQLite', endpoint: '/api/console/empresas/{empresaId}/usuarios/{id}', descricao: 'Altera sistema, dados, credencial e menus do usuário da empresa.', pedido: { empresaId: 'ID_DA_EMPRESA', id: 'ID_DO_USUARIO', sistema_id: 'curso', nome: 'Usuário alterado', usuario: 'usuario.alterado', senha: '', client_id: 'CLIENT_ID_ATIVO', menu_data: [], menu_superior_data: [], dashboard_data: [] }, admin: true, usuarioSqlite: true, method: 'PUT' },
+                { nome: 'Excluir usuário SQLite', endpoint: '/api/console/usuarios/{id}', descricao: 'Exclui o usuário do SQLite e bloqueia novos logins.', pedido: { id: 'ID_DO_USUARIO' }, admin: true, method: 'DELETE' },
+                { nome: 'Consultar menus do usuário', endpoint: '/api/console/empresas/{empresaId}/usuarios/{id}/menus', descricao: 'Consulta MenuData, MenuSuperiorData e DashBoardData.', pedido: { empresaId: 'ID_DA_EMPRESA', id: 'ID_DO_USUARIO' }, admin: true },
+                { nome: 'Gravar menus do usuário', endpoint: '/api/console/empresas/{empresaId}/usuarios/{id}/menus', descricao: 'Grava as permissões de menu do usuário.', pedido: { empresaId: 'ID_DA_EMPRESA', id: 'ID_DO_USUARIO', menu_data: [], menu_superior_data: [], dashboard_data: [] }, admin: true, method: 'PUT' },
+                { nome: 'Multibanco — consultar', endpoint: '/multibanco/consultar', descricao: 'Consulta uma tabela usando JSON estruturado e o dialeto do banco selecionado.', pedido: { tipo_banco: 'sqlite', banco: 'CURSO.db', tabela: 'FILIAL', campos: '*', where: {} }, banco: true, direto: true, protegido: true, method: 'POST' },
+                { nome: 'Multibanco — inserir', endpoint: '/multibanco/inserir', descricao: 'Insere dados usando JSON estruturado. Use primeiro o teste de estrutura para criar a tabela de teste.', pedido: { tipo_banco: 'sqlite', banco: 'CURSO.db', tabela: 'teste_multibanco', dados: { nome: 'Registro de teste' } }, banco: true, direto: true, protegido: true, method: 'POST' },
+                { nome: 'Multibanco — alterar', endpoint: '/multibanco/alterar', descricao: 'Altera dados usando JSON estruturado e filtro obrigatório.', pedido: { tipo_banco: 'sqlite', banco: 'CURSO.db', tabela: 'teste_multibanco', dados: { nome: 'Registro alterado' }, where: { id: 1 } }, banco: true, direto: true, protegido: true, method: 'POST' },
+                { nome: 'Multibanco — excluir', endpoint: '/multibanco/excluir', descricao: 'Exclui dados usando JSON estruturado e filtro obrigatório.', pedido: { tipo_banco: 'sqlite', banco: 'CURSO.db', tabela: 'teste_multibanco', where: { id: 1 } }, banco: true, direto: true, protegido: true, method: 'POST' },
+                { nome: 'Multibanco — criar/ajustar tabela', endpoint: '/multibanco/estrutura', descricao: 'Cria a tabela ausente ou adiciona/confere seus campos no banco selecionado.', pedido: { tipo_banco: 'sqlite', banco: 'CURSO.db', tabela: 'teste_multibanco', campos: [{ nome: 'id', tipo: 'inteiro', nulo: false, chave_primaria: true, auto_incremento: true }, { nome: 'nome', tipo: 'texto', nulo: false }] }, banco: true, direto: true, protegido: true, method: 'POST' },
+                { nome: 'Atualizar estrutura a partir da API', endpoint: '/multibanco/estrutura/api', descricao: 'Usa o SQLite interno da API como tutor. Cria e adiciona no banco destino as tabelas e campos ausentes da versão atual.', pedido: { tipo_banco: 'sqlite', banco: 'CURSO.db', tabelas: [] }, banco: true, protegido: true, method: 'POST' },
+                { nome: 'Impressão 4000 — status', endpoint: '/status', descricao: 'Testa se o agente de impressão da porta 4000 está ativo, sem imprimir papel.', pedido: {}, impressao: true, publico: true, method: 'GET' },
+                { nome: 'Impressão 4000 — imprimir texto', endpoint: '/imprime', descricao: 'Envia texto CP850 para a impressora I9 de rede pela porta 4000.', pedido: { tipo: 'network_ip', conteudo: 'TESTE FACILAPP\nIMPRESSAO PORTA 4000\n\n\n', encoding: 'CP850', ipRede: '192.168.2.200', portaTcp: 9100 }, impressao: true, protegido: true, method: 'POST' },
+                { nome: 'Consultar tabela', endpoint: '/executar', descricao: 'Consulta campos definidos de uma tabela SQLite instalada com o curso.', pedido: { funcao: 'consultar', tipo_banco: 'sqlite', banco: 'CURSO.db', tabela: 'FILIAL', campos: 'ID_FILIAL,NOME,RAZAO,CNPJ,CIDADE,UF' }, banco: true },
+                { nome: 'Consultar SQLite', endpoint: '/executar', descricao: 'Consulta as unidades existentes no banco SQLite do curso.', pedido: { funcao: 'consultar', tipo_banco: 'sqlite', banco: 'CURSO.db', tabela: 'FILIAL', campos: 'ID_FILIAL,NOME,RAZAO,CNPJ,CIDADE,UF' }, banco: true },
+                { nome: 'SQL livre', endpoint: '/executar', descricao: 'Executa SQL livre no banco informado após validar o access token.', pedido: { funcao: 'consulta_livre', tipo_banco: 'sqlite', banco: 'CURSO.db', sql: 'SELECT ID_FILIAL, NOME, RAZAO, CNPJ, CIDADE, UF FROM FILIAL ORDER BY ID_FILIAL' }, banco: true },
+                { nome: 'Listar tabelas', endpoint: '/executar', descricao: 'Lista as tabelas do banco SQLite instalado com o curso.', pedido: { funcao: 'listar_tabelas', tipo_banco: 'sqlite', banco: 'CURSO.db' }, banco: true },
+                { nome: 'Listar campos', endpoint: '/executar', descricao: 'Lista os campos da tabela FILIAL do banco do curso.', pedido: { funcao: 'listar_campos', tipo_banco: 'sqlite', banco: 'CURSO.db', tabela: 'FILIAL' }, banco: true },
+                { nome: 'Enviar Z-API', endpoint: '/executar', descricao: 'Envia mensagem de diagnóstico pela Z-API configurada.', pedido: { funcao: 'whatsapp_zapi_enviar', telefone: '5511999999999', mensagem: 'Teste FacilApp SQL' } },
+                { nome: 'Geocodificar', endpoint: '/executar', descricao: 'Consulta coordenadas pela integração de mapas.', pedido: { funcao: 'mapa_geocodificar', consulta: 'São Paulo, SP' } },
+                { nome: 'Salvar arquivo', endpoint: '/executar', descricao: 'Envia arquivo de teste ao repositório autorizado.', pedido: { funcao: 'arquivo_salvar', categoria: 'documentos', desenvolvedor: 'facilapp', usuario: 'teste', nome_arquivo: 'exemplo.txt', conteudo_base64: 'VGVzdGU=' } }
+            ];
+            const $ = seletor => document.querySelector(seletor);
+            let bearerEmMemoria = localStorage.getItem('facilapp_access_token') || '';
+            try { bearerEmMemoria = window.parent?.facilAppAccessToken || bearerEmMemoria; } catch { }
+            let combosLoginSQLiteCarregados = false;
+            // Os identificadores retornados pelo Login também permanecem somente nesta aba.
+            // Eles permitem testar os endpoints administrativos do próprio usuário sem copiar
+            // GUIDs manualmente e sem confundir registros de usuários diferentes.
+            let usuarioAutenticadoEmMemoria = { empresaId: '', id: '' };
+
+            async function chamar(caminho, opcoes = {}) {
+                const { headers = {}, ...opcoesDaRequisicao } = opcoes;
+                const resposta = await fetch(api + caminho, {
+                    ...opcoesDaRequisicao,
+                    headers: { 'Content-Type': 'application/json', ...headers }
+                });
+                const texto = await resposta.text();
+                let dados;
+                try { dados = JSON.parse(texto); } catch { throw new Error(texto || `HTTP ${resposta.status}`); }
+                if (!resposta.ok) throw new Error(dados.erro || dados.mensagem || `HTTP ${resposta.status}`);
+                return dados;
+            }
+            function exemploAtual() { return exemplos[Number($('#funcao').value) || 0]; }
+            function aplicarUsuarioAutenticado(pedido) {
+                if (!pedido || !usuarioAutenticadoEmMemoria.empresaId || !usuarioAutenticadoEmMemoria.id) return pedido;
+                if (pedido.empresaId === 'ID_DA_EMPRESA') pedido.empresaId = usuarioAutenticadoEmMemoria.empresaId;
+                if (pedido.id === 'ID_DO_USUARIO') pedido.id = usuarioAutenticadoEmMemoria.id;
+                return pedido;
+            }
+            function guardarUsuarioAutenticado(retorno) {
+                const usuario = retorno?.usuario;
+                if (!usuario?.idFilial || !usuario?.idUsuario) return;
+                usuarioAutenticadoEmMemoria = {
+                    empresaId: String(usuario.idFilial),
+                    id: String(usuario.idUsuario)
+                };
+            }
+            function sincronizarIdentidadeLoginSQLite() {
+                if (!exemploAtual().loginCompleto) return;
+                try {
+                    const pedido = JSON.parse($('#pedido').value);
+                    pedido.cnpj = $('#empresa-login').value;
+                    pedido.sistema_id = $('#sistema-login').value;
+                    pedido.usuario = $('#usuario-login').value;
+                    pedido.senha = $('#senha-login').value;
+                    $('#pedido').value = JSON.stringify(pedido, null, 4);
+                } catch { }
+            }
+            function sincronizarUsuarioSqlite() {
+                if (!exemploAtual().usuarioSqlite) return;
+                try {
+                    const pedido = JSON.parse($('#pedido').value);
+                    pedido.empresaId = $('#empresa-usuario').value;
+                    pedido.sistema_id = $('#sistema-usuario').value;
+                    pedido.nome = $('#nome-usuario').value;
+                    pedido.usuario = $('#login-usuario').value;
+                    pedido.senha = $('#senha-usuario').value;
+                    $('#pedido').value = JSON.stringify(pedido, null, 4);
+                } catch { }
+            }
+            async function carregarCombosIdentidade() {
+                const [retornoEmpresas, retornoSistemas] = await Promise.all([
+                    chamar('/api/console/empresas'),
+                    chamar('/api/console/sistemas')
+                ]);
+                const empresas = retornoEmpresas.empresas || [];
+                const sistemas = (retornoSistemas.sistemas || []).filter(sistema => sistema.ativo !== false);
+                $('#empresa-login').innerHTML = empresas.length
+                    ? empresas.map(empresa => `<option value="${String(empresa.cnpj || '').replace(/\D/g, '')}">${empresa.nomeFantasia || empresa.razaoSocial || empresa.email || empresa.id} — ${String(empresa.cnpj || '').replace(/\D/g, '')}</option>`).join('')
+                    : '<option value="">Nenhuma empresa cadastrada</option>';
+                $('#empresa-usuario').innerHTML = empresas.length
+                    ? empresas.map(empresa => `<option value="${empresa.id}">${empresa.nomeFantasia || empresa.razaoSocial || empresa.email || empresa.id} — ${String(empresa.cnpj || '').replace(/\D/g, '')}</option>`).join('')
+                    : '<option value="">Nenhuma empresa cadastrada</option>';
+                const opcoesSistema = sistemas.length
+                    ? sistemas.map(sistema => `<option value="${sistema.id}">${sistema.nome || sistema.id}</option>`).join('')
+                    : '<option value="">Nenhum sistema cadastrado</option>';
+                $('#sistema-login').innerHTML = opcoesSistema;
+                $('#sistema-usuario').innerHTML = opcoesSistema;
+            }
+            async function preencherUsuarioAdministrativo(pedido) {
+                aplicarUsuarioAutenticado(pedido);
+                const empresaPendente = String(pedido.empresaId || '').startsWith('ID_');
+                const usuarioPendente = Object.prototype.hasOwnProperty.call(pedido, 'id') && String(pedido.id || '').startsWith('ID_');
+                if (!empresaPendente && !usuarioPendente) return pedido;
+                const empresas = await chamar('/api/console/empresas');
+                const empresa = (empresas.empresas || []).find(item => item.id === pedido.empresaId) || (empresas.empresas || [])[0];
+                if (!empresa?.id) throw new Error('Nenhuma empresa cadastrada para executar este teste.');
+                pedido.empresaId = empresa.id;
+                if (usuarioPendente) {
+                    const usuarios = await chamar(`/api/console/empresas/${encodeURIComponent(empresa.id)}/usuarios`);
+                    const usuario = (usuarios.usuarios || [])[0];
+                    if (!usuario?.id) throw new Error('Nenhum usuário cadastrado para executar este teste.');
+                    pedido.id = usuario.id;
+                    usuarioAutenticadoEmMemoria = { empresaId: empresa.id, id: usuario.id };
+                }
+                return pedido;
+            }
+            function atualizarExemplo() {
+                const exemplo = exemploAtual();
+                const pedidoDoExemplo = aplicarUsuarioAutenticado(JSON.parse(JSON.stringify(exemplo.pedido)));
+                $('#titulo-teste').textContent = exemplo.nome;
+                $('#descricao-teste').textContent = exemplo.descricao;
+                $('#endpoint').textContent = `${exemplo.method || (exemplo.publico || exemplo.admin ? 'GET' : 'POST')} ${exemplo.impressao ? ':4000' : ''}${exemplo.endpoint}`;
+                $('#pedido').value = JSON.stringify(pedidoDoExemplo, null, 4);
+                $('#banco').disabled = !exemplo.banco;
+                const exibirCamposLogin = exemplo.login === true;
+                const camposLogin = $('#campos-login');
+                // Define a exibição de modo explícito: o CSS de grade não pode sobrepor
+                // a regra de segurança visual dos campos de usuário e senha.
+                camposLogin.hidden = !exibirCamposLogin;
+                camposLogin.style.display = exibirCamposLogin ? 'grid' : 'none';
+                const camposClientSecret = $('#campos-client-secret');
+                camposClientSecret.hidden = !exemplo.clientSecret;
+                camposClientSecret.style.display = exemplo.clientSecret ? 'grid' : 'none';
+                const camposLoginSQLite = $('#campos-login-sqlite');
+                camposLoginSQLite.hidden = !exemplo.loginCompleto;
+                camposLoginSQLite.style.display = exemplo.loginCompleto ? 'grid' : 'none';
+                const camposUsuarioSQLite = $('#campos-usuario-sqlite');
+                camposUsuarioSQLite.hidden = !exemplo.usuarioSqlite;
+                camposUsuarioSQLite.style.display = exemplo.usuarioSqlite ? 'grid' : 'none';
+                $('#usuario-login').value = exemplo.login ? (exemplo.pedido.usuario || '') : '';
+                $('#senha-login').value = exemplo.login ? (exemplo.pedido.senha || '') : '';
+                $('#client-id-login').value = exemplo.clientSecret ? (exemplo.pedido.client_id || '') : '';
+                $('#client-secret-login').value = exemplo.clientSecret ? (exemplo.pedido.client_secret || '') : '';
+                if (exemplo.loginCompleto || exemplo.usuarioSqlite) {
+                    carregarCombosIdentidade().then(() => {
+                        if (exemplo.loginCompleto) {
+                            if ([...$('#empresa-login').options].some(opcao => opcao.value === exemplo.pedido.cnpj)) $('#empresa-login').value = exemplo.pedido.cnpj;
+                            if ([...$('#sistema-login').options].some(opcao => opcao.value === exemplo.pedido.sistema_id)) $('#sistema-login').value = exemplo.pedido.sistema_id;
+                            sincronizarIdentidadeLoginSQLite();
+                        }
+                        if (exemplo.usuarioSqlite) {
+                            $('#nome-usuario').value = exemplo.pedido.nome || '';
+                            $('#login-usuario').value = exemplo.pedido.usuario || '';
+                            $('#senha-usuario').value = exemplo.pedido.senha || '';
+                            if ([...$('#sistema-usuario').options].some(opcao => opcao.value === exemplo.pedido.sistema_id)) $('#sistema-usuario').value = exemplo.pedido.sistema_id;
+                            sincronizarUsuarioSqlite();
+                        }
+                    }).catch(erro => { $('#retorno').textContent = erro.message; });
+                }
+                if (exemplo.banco) $('#banco').value = exemplo.pedido.tipo_banco || 'sqlite';
+                $('#sessao').textContent = bearerEmMemoria
+                    ? 'Bearer em memória: ativo'
+                    : (exemplo.publico || exemplo.cnpj || exemplo.login || exemplo.admin ? 'Bearer automático: não necessário' : 'Faça Login antes de executar');
+                $('#retorno').textContent = 'O retorno aparecerá aqui.';
+            }
+            async function obterBearer() {
+                if (bearerEmMemoria) {
+                    $('#sessao').textContent = 'Bearer em memória: ativo';
+                    return bearerEmMemoria;
+                }
+                throw new Error('Faça Login ou Login VLINK para obter o Bearer da sessão.');
+            }
+            function guardarBearer(token) {
+                if (!token) throw new Error('A autenticação não retornou um access token válido.');
+                bearerEmMemoria = token;
+                localStorage.setItem('facilapp_access_token', token);
+                $('#sessao').textContent = 'Bearer em memória: ativo';
+                return bearerEmMemoria;
+            }
+            $('#funcao').innerHTML = exemplos.map((exemplo, indice) => `<option value="${indice}">${exemplo.nome}</option>`).join('');
+            $('#funcao').onchange = atualizarExemplo;
+            $('#banco').onchange = () => { try { const pedido = JSON.parse($('#pedido').value); pedido.tipo_banco = $('#banco').value; $('#pedido').value = JSON.stringify(pedido, null, 4); } catch { } };
+            const sincronizarLogin = () => {
+                if (!exemploAtual().login) return;
+                try {
+                    const pedido = JSON.parse($('#pedido').value);
+                    pedido.usuario = $('#usuario-login').value;
+                    pedido.senha = $('#senha-login').value;
+                    $('#pedido').value = JSON.stringify(pedido, null, 4);
+                } catch { }
+            };
+            $('#usuario-login').oninput = sincronizarLogin;
+            $('#senha-login').oninput = sincronizarLogin;
+            const sincronizarClientSecret = () => {
+                if (!exemploAtual().clientSecret) return;
+                try {
+                    const pedido = JSON.parse($('#pedido').value);
+                    pedido.client_id = $('#client-id-login').value;
+                    pedido.client_secret = $('#client-secret-login').value;
+                    $('#pedido').value = JSON.stringify(pedido, null, 4);
+                } catch { }
+            };
+            $('#client-id-login').oninput = sincronizarClientSecret;
+            $('#client-secret-login').oninput = sincronizarClientSecret;
+            $('#empresa-login').onchange = sincronizarIdentidadeLoginSQLite;
+            $('#sistema-login').onchange = sincronizarIdentidadeLoginSQLite;
+            $('#empresa-usuario').onchange = sincronizarUsuarioSqlite;
+            $('#sistema-usuario').onchange = sincronizarUsuarioSqlite;
+            $('#nome-usuario').oninput = sincronizarUsuarioSqlite;
+            $('#login-usuario').oninput = sincronizarUsuarioSqlite;
+            $('#senha-usuario').oninput = sincronizarUsuarioSqlite;
+            $('#enviar').onclick = async () => {
+                try {
+                    const exemplo = exemploAtual();
+                    const pedido = JSON.parse($('#pedido').value);
+                    let retorno;
+                    const method = exemplo.method || (exemplo.publico || exemplo.admin ? 'GET' : 'POST');
+                    if (exemplo.impressao && exemplo.publico) {
+                        const resposta = await fetch(apiImpressao + exemplo.endpoint);
+                        const texto = await resposta.text();
+                        retorno = JSON.parse(texto);
+                        if (!resposta.ok) throw new Error(retorno.erro || retorno.mensagem || `HTTP ${resposta.status}`);
+                    }
+                    else if (exemplo.impressao) {
+                        const bearer = await obterBearer();
+                        const resposta = await fetch(apiImpressao + exemplo.endpoint, { method, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${bearer}` }, body: JSON.stringify(pedido) });
+                        const texto = await resposta.text();
+                        retorno = JSON.parse(texto);
+                        if (!resposta.ok) throw new Error(retorno.erro || retorno.mensagem || `HTTP ${resposta.status}`);
+                    }
+                    else if (exemplo.publico) retorno = await chamar('/status');
+                    else if (exemplo.cnpj) retorno = await chamar(`/api/console/empresas/consultar-cnpj/${encodeURIComponent(pedido.cnpj || '')}`);
+                    else if (exemplo.cpf) retorno = await chamar(`/api/console/pessoas/consultar-cpf/${encodeURIComponent(pedido.cpf || '')}`);
+                    else if (exemplo.clientSecret) {
+                        pedido.client_id = $('#client-id-login').value;
+                        pedido.client_secret = $('#client-secret-login').value;
+                        $('#pedido').value = JSON.stringify(pedido, null, 4);
+                        retorno = await chamar(exemplo.endpoint, { method: 'POST', body: JSON.stringify(pedido) });
+                        guardarBearer(retorno.access_token);
+                    }
+                    else if (exemplo.login) {
+                        pedido.usuario = $('#usuario-login').value;
+                        pedido.senha = $('#senha-login').value;
+                        if (exemplo.loginCompleto) {
+                            pedido.cnpj = $('#empresa-login').value;
+                            pedido.sistema_id = $('#sistema-login').value;
+                            if (!pedido.cnpj) throw new Error('Selecione a empresa para obter o CNPJ.');
+                            if (!pedido.sistema_id) throw new Error('Selecione o sistema.');
+                        }
+                        $('#pedido').value = JSON.stringify(pedido, null, 4);
+                        retorno = await chamar(exemplo.endpoint, { method: 'POST', body: JSON.stringify(pedido) });
+                        // Login e LoginVlink usam a mesma memória SQL; a variante NFe, quando
+                        // configurada, permanece no retorno para uso explícito pela integração NFe.
+                        guardarBearer(retorno.access_token);
+                        guardarUsuarioAutenticado(retorno);
+                    }
+                    else if (exemplo.admin) {
+                        await preencherUsuarioAdministrativo(pedido);
+                        const endpoint = exemplo.endpoint
+                            .replace('{empresaId}', encodeURIComponent(pedido.empresaId || ''))
+                            .replace('{id}', encodeURIComponent(pedido.id || ''));
+                        const corpo = { ...pedido };
+                        delete corpo.empresaId;
+                        delete corpo.id;
+                        retorno = await chamar(endpoint, {
+                            method,
+                            body: method === 'GET' || method === 'DELETE' ? undefined : JSON.stringify(corpo)
+                        });
+                        $('#pedido').value = JSON.stringify(pedido, null, 4);
+                    }
+                    else if (exemplo.direto || exemplo.endpoint === '/multibanco/estrutura/api') { const bearer = await obterBearer(); retorno = await chamar(exemplo.endpoint, { method, headers: { Authorization: `Bearer ${bearer}` }, body: JSON.stringify({ ...pedido, tipo_banco: exemplo.banco ? $('#banco').value : pedido.tipo_banco }) }); }
+                    else { const bearer = await obterBearer(); retorno = await chamar('/executar', { method: 'POST', headers: { Authorization: `Bearer ${bearer}` }, body: JSON.stringify({ ...pedido, tipo_banco: exemplo.banco ? $('#banco').value : pedido.tipo_banco }) }); if (pedido.funcao === 'ObterToken') guardarBearer(retorno.access_token); }
+                    $('#retorno').textContent = JSON.stringify(retorno, null, 4);
+                } catch (erro) { $('#retorno').textContent = erro.message; }
+            };
+            $('#codigo-fonte').onclick = () => {
+                const exemplo = exemploAtual();
+                const pedido = $('#pedido').value;
+                const method = exemplo.method || (exemplo.publico || exemplo.admin ? 'GET' : 'POST');
+                const baseEndpoint = exemplo.impressao ? apiImpressao : api;
+                $('#retorno').textContent = `<!-- Exemplo HTML/JavaScript -->\n<script>\nconst resposta = await fetch('${baseEndpoint}${exemplo.endpoint}', {\n  method: '${method}',\n  headers: { 'Content-Type': 'application/json'${exemplo.protegido ? ", Authorization: 'Bearer SEU_ACCESS_TOKEN'" : ''} },\n  body: ${method === 'GET' || method === 'DELETE' ? 'undefined' : `JSON.stringify(${pedido})`}\n});\nconst resultado = await resposta.json();\n<\/script>`;
+            };
+            atualizarExemplo();
+        })();
+    </script>
+</body>
+</html>
+
+

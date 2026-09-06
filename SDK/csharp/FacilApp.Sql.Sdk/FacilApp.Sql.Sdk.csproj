@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild><PackageId>FacilApp.Sql.Sdk</PackageId><Version>1.0.130</Version>
+    <Authors>FacilApp</Authors><Company>FacilApp</Company><Description>SDK oficial em C# para autenticação e consumo da FacilApp SQL API.</Description>
+    <PackageTags>facilapp;sql;api;oauth2;client</PackageTags><PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup><None Include="README.md" Pack="true" PackagePath="\" /></ItemGroup>
+</Project>

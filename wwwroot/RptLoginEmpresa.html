@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="jotape">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style id="facilapp-tema-critico">html[data-theme="jotape"],html[data-theme="jotape"] body{background:#bfd5a5;color:#171a10}html[data-theme="jotape"] iframe{background:#bfd5a5}</style>
+    <title>Relatório de logins | FacilApp SQL</title>
+    <link rel="stylesheet" href="dependencias/themes/TemaFacilApp.css">
+    <style>
+        * { box-sizing:border-box; }
+        html, body { width:100%; min-height:100%; margin:0; background:transparent; font:11px Arial,sans-serif; color:var(--fa-text); }
+        body { display:flex; align-items:center; justify-content:center; padding:7px; }
+        .relatorio { display:flex; flex-direction:column; width:min(720px,calc(100vw - 28px)); height:min(500px,calc(100vh - 28px)); overflow:hidden; border:1px solid var(--fa-border); border-radius:12px; background:var(--fa-panel); box-shadow:0 8px 24px #171a1066; }
+        header { display:flex; align-items:center; justify-content:space-between; min-height:48px; padding:7px 12px; border-bottom:1px solid var(--fa-border); background:var(--fa-panel-alt); cursor:move; }
+        h1 { margin:0; font-size:18px; } p { margin:2px 0 0; color:var(--fa-muted); }
+        button { height:25px; padding:3px 9px; border:0; border-radius:5px; background:var(--fa-primary); color:var(--fa-panel); font:700 11px Arial,sans-serif; cursor:pointer; }
+        button:hover { filter:brightness(1.08); } button:active { transform:translateY(1px); }
+        .fechar { width:30px; height:30px; padding:0; font-size:18px; }
+        main { flex:1; overflow:auto; padding:12px; }
+        table { width:100%; border-collapse:collapse; }
+        th { height:28px; padding:4px 7px; text-align:left; font-weight:700; background:var(--fa-panel-alt); }
+        td { height:35px; padding:4px 7px; font-weight:400; }
+        th, td { border:1px solid var(--fa-border); }
+        footer { display:flex; justify-content:flex-end; gap:7px; padding:7px 12px; border-top:1px solid var(--fa-border); background:var(--fa-panel-alt); }
+        .vazio { padding:16px; text-align:center; color:var(--fa-muted); }
+        @media print { body { padding:0; } .relatorio { width:100%; height:auto; border:0; box-shadow:none; } .fechar, footer { display:none; } }
+    </style>
+</head>
+<body>
+    <section class="relatorio">
+        <header id="cabecalho"><div><h1>Relatório de logins</h1><p id="empresa">Logins vinculados à empresa.</p></div><button class="fechar" type="button" aria-label="Fechar">×</button></header>
+        <main><table><thead><tr><th>Nome</th><th>Usuário</th><th>Credencial SQL</th><th>Credencial NFe</th></tr></thead><tbody id="dados"></tbody></table><div id="vazio" class="vazio" hidden>Nenhum login cadastrado.</div></main>
+        <footer><button id="cancelar" type="button">Fechar</button><button id="imprimir" type="button">▣ Imprimir</button></footer>
+    </section>
+    <script>
+        (() => {
+            const parametros = new URLSearchParams(location.search);
+            const apiBase = parametros.get("api") || (location.port === "3000" ? `http://${location.hostname}:5050` : "");
+            const accessToken = localStorage.getItem("facilapp_access_token") || (() => { try { return window.parent?.facilAppAccessToken || ""; } catch { return ""; } })();
+            const empresaId = parametros.get("empresaId") || "";
+            const nomeEmpresa = parametros.get("empresa") || "Empresa";
+            document.querySelector("#empresa").textContent = `Empresa: ${nomeEmpresa}`;
+            const fechar = () => parent.postMessage({ tipo:"fechar-modal" }, "*");
+            document.querySelector(".fechar").addEventListener("click", fechar);
+            document.querySelector("#cancelar").addEventListener("click", fechar);
+            document.querySelector("#imprimir").addEventListener("click", () => print());
+            fetch(`${apiBase}/api/console/empresas/${encodeURIComponent(empresaId)}/usuarios`, { headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {} })
+                .then(resposta => resposta.ok ? resposta.json() : Promise.reject())
+                .then(resultado => {
+                    const usuarios = resultado.usuarios || [];
+                    const corpo = document.querySelector("#dados");
+                    corpo.innerHTML = usuarios.map(usuario => `<tr><td>${escapar(usuario.nome)}</td><td>${escapar(usuario.usuario)}</td><td>${escapar(usuario.credencialNome || "")}</td><td>${escapar(usuario.nfeCredencialNome || "")}</td></tr>`).join("");
+                    document.querySelector("#vazio").hidden = usuarios.length > 0;
+                })
+                .catch(() => { document.querySelector("#vazio").hidden = false; });
+            const escapar = valor => String(valor ?? "").replace(/[&<>\"]/g, caractere => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", "\"":"&quot;" })[caractere]);
+            let movendo=false, inicioX=0, inicioY=0, origemX=0, origemY=0;
+            const caixa=document.querySelector(".relatorio"), cabecalho=document.querySelector("#cabecalho");
+            cabecalho.addEventListener("pointerdown", evento => { if (evento.target.closest("button")) return; movendo=true; inicioX=evento.clientX; inicioY=evento.clientY; const retangulo=caixa.getBoundingClientRect(); origemX=retangulo.left; origemY=retangulo.top; caixa.style.position="fixed"; caixa.style.left=`${origemX}px`; caixa.style.top=`${origemY}px`; cabecalho.setPointerCapture(evento.pointerId); });
+            cabecalho.addEventListener("pointermove", evento => { if (movendo) { caixa.style.left=`${origemX + evento.clientX - inicioX}px`; caixa.style.top=`${origemY + evento.clientY - inicioY}px`; } });
+            cabecalho.addEventListener("pointerup", () => { movendo=false; });
+        })();
+    </script>
+</body>
+</html>
+

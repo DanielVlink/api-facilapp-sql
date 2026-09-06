@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="jotape">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style id="facilapp-tema-critico">html[data-theme="jotape"],html[data-theme="jotape"] body{background:#bfd5a5;color:#171a10}html[data-theme="jotape"] iframe{background:#bfd5a5}</style>
+    <title>Credencial</title>
+    <link rel="stylesheet" href="dependencias/themes/TemaFacilApp.css">
+    <style>
+        * { box-sizing: border-box; }
+        html, body { min-height: 100%; margin: 0; background: transparent !important; color: var(--fa-text); font: 11px Arial, sans-serif; }
+        body { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 7px; }
+        .modal { width: min(560px, calc(100vw - 14px)); border: 1px solid #8ca965; border-radius: 12px; overflow: hidden; background: #d8e8c2; box-shadow: 0 2px 0 rgba(57,76,26,.2); }
+        /* Prioridade visual: cabeçalho no verde aprovado, acima da regra genérica do tema. */
+        html[data-theme] .modal > header { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 7px 12px; border-bottom: 1px solid #9db879; background: #c8dfa9 !important; cursor: move; }
+        h1 { margin: 0; font-size: 18px; } p { margin: 2px 0 0; color: var(--fa-muted); }
+        form { padding: 8px 12px 10px; } label { display: flex; flex-direction: column; gap: 3px; font-weight: 700; }
+        input, select { height: 25px; padding: 3px 6px; border: 1px solid var(--fa-border); border-radius: 5px; background: var(--fa-field-bg); color: var(--fa-text); font: 400 11px Arial, sans-serif; }
+        .grid { display: grid; grid-template-columns: minmax(0, 1fr) 170px; gap: 5px 7px; }
+        fieldset { margin: 7px 0; padding: 7px; border: 1px solid var(--fa-border); border-radius: 7px; } legend { padding: 0 4px; font-weight: 700; }
+        .permissoes { display: flex; flex-wrap: wrap; gap: 5px 7px; } .permissoes label { flex-direction: row; align-items: center; font-weight: 400; } .permissoes input { width: auto; height: auto; }
+        button { height: 25px; padding: 3px 9px; border: 0; border-radius: 5px; background: var(--fa-primary); color: var(--fa-menu-button-text, #fff); font: 700 11px Arial, sans-serif; cursor: pointer; }
+        .fechar { width: 30px; height: 30px; padding: 0; font-size: 18px; } .acoes { display: flex; justify-content: flex-end; gap: 7px; padding-top: 7px; border-top: 1px solid var(--fa-border); }
+        .suave { border: 1px solid var(--fa-border); background: var(--fa-panel-alt); color: var(--fa-text); } .erro { min-height: 16px; color: #8a2d22; }
+        .somente-leitura { color: var(--fa-muted); }
+    </style>
+</head>
+<body>
+    <section class="modal"><header id="cabecalho"><div><h1 id="titulo">Nova credencial</h1><p id="subtitulo">Crie uma credencial para autenticação da API.</p></div><button class="fechar" type="button" aria-label="Fechar">×</button></header>
+        <form id="formulario"><div class="grid"><label>Nome da credencial *<input name="nome" required placeholder="Ex.: Credencial_FacilApp_SQL_Produção"></label><label>Ambiente *<select name="tipo"><option>PRODUÇÃO</option><option>HOMOLOGAÇÃO</option></select></label></div>
+            <fieldset><legend>Permissões *</legend><div id="permissoes" class="permissoes"></div></fieldset><p id="erro" class="erro"></p><div class="acoes"><button id="cancelar" class="suave" type="button">Cancelar</button><button id="gravar" type="submit">Criar credencial</button></div>
+        </form>
+    </section>
+    <script src="dependencias/vendor/xlsx.full.min.js"></script><script>
+        (() => {
+            const parametros = new URLSearchParams(location.search); const api = parametros.get('api') || (location.port === '3000' ? 'http://127.0.0.1:5000' : '');
+            document.documentElement.dataset.theme = parametros.get('tema') || 'jotape';
+            const retornoLogin = parametros.get('retorno') === 'login';
+            const fechar = () => parent.postMessage({ tipo: retornoLogin ? 'credencial-fechar' : 'fechar-modal' }, '*'); document.querySelector('.fechar').onclick = fechar; document.getElementById('cancelar').onclick = fechar;
+            const existente = parametros.get('clientId');
+            const permissoesSalvas = (parametros.get('permissoes') || '').split(',').map(item => item.trim().toLowerCase()).filter(Boolean);
+            const permissoes = ['sqlserver', 'configuracao', 'nfe', 'nfce']; const destino = document.getElementById('permissoes');
+            destino.innerHTML = permissoes.map((permissao, indice) => `<label><input type="checkbox" name="permission" value="${permissao}" ${(existente ? permissoesSalvas.includes(permissao) : indice < 2) ? 'checked' : ''}>${permissao}</label>`).join('');
+            document.querySelector('[name=nome]').value = parametros.get('nome') || '';
+            if (existente) { document.getElementById('titulo').textContent = 'Atualizar credencial'; document.getElementById('subtitulo').textContent = 'Altere o nome, o ambiente ou as permissões da credencial.'; document.querySelector('[name=tipo]').value = parametros.get('tipo') || 'PRODUÇÃO'; document.getElementById('gravar').textContent = 'Gravar alterações'; }
+            document.getElementById('formulario').onsubmit = async event => { event.preventDefault(); const erro = document.getElementById('erro'); const form = new FormData(event.currentTarget); const corpo = { nome: form.get('nome').trim(), tipo: form.get('tipo'), permissoes: form.getAll('permission') }; if (!corpo.permissoes.length) { erro.textContent = 'Selecione ao menos uma permissão.'; return; } try { const endpoint = existente ? api + '/api/console/credenciais/' + encodeURIComponent(existente) : api + '/api/console/credenciais'; const resposta = await fetch(endpoint, { method: existente ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(corpo) }); const dados = await resposta.json(); if (!resposta.ok) throw new Error(dados.erro || (existente ? 'Não foi possível atualizar a credencial.' : 'Não foi possível criar a credencial.')); const criada=dados.resultado||{}, credencial=criada.credencial||criada, clientId=credencial.clientId||credencial.client_id||'', secret=criada.clientSecret||criada.client_secret||''; if(!existente && secret && window.XLSX){ const ws=XLSX.utils.json_to_sheet([{Nome:corpo.nome,'Client ID':clientId,'Client Secret':secret,Ambiente:corpo.tipo,Permissões:corpo.permissoes.join(',')}]); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Credencial'); const nomeArquivo=corpo.nome.replace(/\s*-\s*(\d{14})\s*$/,'-$1').replace(/[<>:"/\\|?*]/g,'_'); XLSX.writeFile(wb,`Credential-${nomeArquivo}.xls`,{bookType:'biff8'}); } if(retornoLogin) parent.postMessage({ tipo:'credencial-gravada', clientId },'*'); else fechar(); } catch (falha) { erro.textContent = falha.message; } };
+            let inicioX, inicioY, inicialX, inicialY; const modal = document.querySelector('.modal'), cabecalho = document.getElementById('cabecalho'); cabecalho.addEventListener('pointerdown', evento => { if (evento.target.closest('button')) return; inicioX = evento.clientX; inicioY = evento.clientY; const retangulo = modal.getBoundingClientRect(); inicialX = retangulo.left; inicialY = retangulo.top; cabecalho.setPointerCapture(evento.pointerId); cabecalho.onpointermove = mover => { modal.style.position = 'fixed'; modal.style.left = Math.max(7, inicialX + mover.clientX - inicioX) + 'px'; modal.style.top = Math.max(7, inicialY + mover.clientY - inicioY) + 'px'; modal.style.transform = 'none'; }; cabecalho.onpointerup = () => cabecalho.onpointermove = null; });
+        })();
+    </script>
+</body>
+</html>
+

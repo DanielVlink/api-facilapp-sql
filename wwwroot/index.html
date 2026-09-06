@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="jotape">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style id="facilapp-tema-critico">html[data-theme="jotape"],html[data-theme="jotape"] body{background:#bfd5a5;color:#171a10}html[data-theme="jotape"] iframe{background:#bfd5a5}</style>
+        <title>FacilApp SQL — Modelo</title>
+        <link rel="stylesheet" href="dependencias/themes/TemaFacilApp.css">
+        <link rel="stylesheet" href="dependencias/css/menu-index.css">
+    </head>
+    <body>
+        <header class="topbar">
+            <div class="brand" aria-label="FacilApp SQL">
+                <img class="app-logo app-logo-light" src="assets/logo_facilapp.svg" alt="FacilApp" width="165" height="40">
+                <img class="app-logo app-logo-dark" src="assets/logo_facilapp_dark.svg" alt="FacilApp" width="165" height="40">
+                <span class="product-name">SQL</span>
+            </div>
+            <div class="header-tools">
+                <label class="theme-picker"><span>Tema</span><select id="theme-select" aria-label="Tema">
+                    <option value="default">Padrão</option>
+                    <option value="v1-cyberpunk">V1 - Cyberpunk</option>
+                    <option value="dark-tech">Dark Tech</option>
+                    <option value="obsidian-gold">Obsidian Gold</option>
+                    <option value="deep-teal">Deep Teal</option>
+                    <option value="codex-dark">Codex Dark</option>
+                    <option value="jotape">Jotapê</option>
+                </select></label>
+                <button id="reset-theme" class="soft reset-theme" type="button" title="Restaurar tema">↺</button>
+                <div class="user-summary"><span class="user-avatar">U</span><strong id="account-name">master@facilapp.com.br</strong><button id="sair" type="button">Sair</button></div>
+            </div>
+        </header>
+
+        <aside>
+            <small class="menu-label">MENU</small>
+            <nav aria-label="Navegação principal">
+                <button type="button" data-src="AtualizarMenus.html"><span class="nav-symbol">☷</span><span>Atualizar menus</span></button>
+                <button type="button" data-src="ConfiguraVlink.html"><span class="nav-symbol">⚙</span><span>Configura Vlink</span></button>
+                <button type="button" data-src="config.html"><span class="nav-symbol">⚙</span><span>Configuração</span></button>
+                <button type="button" data-src="Credenciadores.html"><span class="nav-symbol">♙</span><span>Credenciadores</span></button>
+                <button type="button" data-src="Credenciais.html"><span class="nav-symbol">⚿</span><span>Credenciais</span></button>
+                <button type="button" data-src="Empresas.html"><span class="nav-symbol">▦</span><span>Empresas + Client &amp; Secret</span></button>
+                <button type="button" data-src="TesteDaApi.html?teste=estrutura"><span class="nav-symbol">⇄</span><span>Estrutura da API</span></button>
+                <button type="button" data-src="Mensalidades.html"><span class="nav-symbol">¤</span><span>Mensalidades</span></button>
+                <button type="button" data-src="Sistemas.html"><span class="nav-symbol">▤</span><span>Sistemas</span></button>
+                <button type="button" data-src="/swagger"><span class="nav-symbol">⌘</span><span>Swagger da API</span></button>
+                <button type="button" data-src="TesteDaApi.html?v=20260827.0402"><span class="nav-symbol">▷</span><span>Testes da API</span></button>
+                <button class="active" type="button" data-src="dashboard.html"><span class="nav-symbol">⌂</span><span>Visão geral</span></button>
+            </nav>
+            <footer><span id="status-indicador" class="ok"></span><b id="status-servicos">Verificando serviços...</b><small id="status-portas">5050 · 3000 · 4000</small></footer>
+        </aside>
+
+        <main><iframe id="conteudo-frame" title="Conteúdo do módulo" src="dashboard.html"></iframe></main>        <div id="auth-overlay" class="auth-overlay" hidden>
+            <section class="auth-card" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+                <header><h1 id="auth-title">Acesso à console</h1><p id="auth-description">Informe seu e-mail e senha para continuar.</p></header>
+                <form id="auth-form"><label>E-mail<input id="auth-email" type="email" autocomplete="username" required></label><label>Senha<input id="auth-password" type="password" autocomplete="current-password" required></label><p id="auth-error" class="auth-error" role="alert"></p><button id="auth-submit" type="submit">Entrar</button></form>
+            </section>
+        </div>
+
+        <script src="dependencias/themes/TemaFacilApp.js"></script>
+        <script>
+            (() => {
+                const frame = document.getElementById('conteudo-frame');
+                const botoes = [...document.querySelectorAll('nav button[data-src]')];
+                const authOverlay = document.getElementById('auth-overlay');
+                const authForm = document.getElementById('auth-form');
+                const authEmail = document.getElementById('auth-email');
+                const authPassword = document.getElementById('auth-password');
+                const authError = document.getElementById('auth-error');
+                const authTitle = document.getElementById('auth-title');
+                const authDescription = document.getElementById('auth-description');
+                const authSubmit = document.getElementById('auth-submit');
+                const statusIndicador = document.getElementById('status-indicador');
+                const statusServicos = document.getElementById('status-servicos');
+                const statusPortas = document.getElementById('status-portas');
+                let consoleConfigurada = true;
+
+                const verificarServicos = async () => {
+                    const host = location.hostname || '127.0.0.1';
+                    const verificar = async url => {
+                        try { return (await fetch(url, { cache: 'no-store' })).ok; } catch { return false; }
+                    };
+                    // A ponte 3000 protege toda rota com token. HTTP 401 confirma que
+                    // ela está escutando corretamente; não precisamos nem devemos expor
+                    // o token apenas para o indicador visual do console.
+                    const verificarPonte = async url => {
+                        try {
+                            const resposta = await fetch(url, { cache: 'no-store' });
+                            return resposta.ok || resposta.status === 401;
+                        } catch { return false; }
+                    };
+                    const [api, ponte, impressao] = await Promise.all([
+                        verificar(`http://${host}:5050/status`),
+                        verificarPonte(`http://${host}:3000/API/status`),
+                        verificar(`http://${host}:4000/status`)
+                    ]);
+                    const ativos = [api, ponte, impressao].filter(Boolean).length;
+                    statusIndicador.className = ativos === 3 ? 'ok' : '';
+                    statusIndicador.style.background = ativos === 3 ? '' : (ativos ? '#f59e0b' : '#dc2626');
+                    statusServicos.textContent = ativos === 3 ? 'Serviços online' : `${ativos}/3 serviços online`;
+                    statusPortas.textContent = `5050 ${api ? '✓' : '✕'} · 3000 ${ponte ? '✓' : '✕'} · 4000 ${impressao ? '✓' : '✕'}`;
+                };
+
+                const selecionar = botao => {
+                    botoes.forEach(item => item.classList.toggle('active', item === botao));
+                    frame.classList.add('is-loading');
+                    frame.src = botao.dataset.src;
+                };
+                const abrirAcesso = configurada => {
+                    consoleConfigurada = configurada;
+                    authTitle.textContent = configurada ? 'Acesso à console' : 'Configurar acesso Master';
+                    authDescription.textContent = configurada ? 'Informe seu e-mail e senha para continuar.' : 'Defina o e-mail e a senha inicial da console.';
+                    authSubmit.textContent = configurada ? 'Entrar' : 'Criar acesso';
+                    authPassword.value = '';
+                    authError.textContent = '';
+                    authOverlay.hidden = false;
+                    authEmail.focus();
+                };
+                const verificarSessao = async () => {
+                    try {
+                        const resposta = await fetch('/api/auth/status', { credentials: 'same-origin' });
+                        if (!resposta.ok) throw new Error('Não foi possível verificar o acesso da console.');
+                        const dados = await resposta.json();
+                        if (dados.authenticated) {
+                            window.facilAppAccessToken = dados.access_token || '';
+                            if (window.facilAppAccessToken) localStorage.setItem('facilapp_access_token', window.facilAppAccessToken);
+                            authOverlay.hidden = true;
+                            return;
+                        }
+                        abrirAcesso(dados.configured);
+                    } catch (erro) {
+                        abrirAcesso(true);
+                        authError.textContent = erro.message;
+                    }
+                };
+                frame.addEventListener('load', () => frame.classList.remove('is-loading'));
+                botoes.forEach(botao => botao.addEventListener('click', () => selecionar(botao)));
+                document.getElementById('theme-select').addEventListener('change', event => window.FacilAppTema.aplicar(event.target.value));
+                document.getElementById('reset-theme').addEventListener('click', () => window.FacilAppTema.aplicar('jotape'));
+                document.getElementById('sair').addEventListener('click', async () => {
+                    try { await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' }); } finally { abrirAcesso(true); }
+                });
+                authForm.addEventListener('submit', async event => {
+                    event.preventDefault();
+                    authError.textContent = '';
+                    authSubmit.disabled = true;
+                    try {
+                        const resposta = await fetch(consoleConfigurada ? '/api/auth/login' : '/api/auth/setup', {
+                            method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email: authEmail.value.trim(), password: authPassword.value })
+                        });
+                        const dados = await resposta.json().catch(() => ({}));
+                        if (!resposta.ok) throw new Error(dados.error || 'Não foi possível entrar na console.');
+                        window.facilAppAccessToken = dados.access_token || '';
+                        if (window.facilAppAccessToken) localStorage.setItem('facilapp_access_token', window.facilAppAccessToken);
+                        authOverlay.hidden = true;
+                    } catch (erro) { authError.textContent = erro.message; } finally { authSubmit.disabled = false; }
+                });
+                window.addEventListener('facilapp:tema-alterado', event => { document.getElementById('theme-select').value = event.detail.tema; });
+                verificarSessao();
+                verificarServicos();
+                setInterval(verificarServicos, 30000);
+            })();
+        </script>
+    </body>
+</html>
+
+
+

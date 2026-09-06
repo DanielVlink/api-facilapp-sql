@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="jotape">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+        <style id="facilapp-tema-critico">html[data-theme="jotape"],html[data-theme="jotape"] body{background:#bfd5a5;color:#171a10}html[data-theme="jotape"] iframe{background:#bfd5a5}</style>
+<title>Credenciadores</title>
+<link rel="stylesheet" href="dependencias/vendor/tabulator.min.css">
+<link rel="stylesheet" href="dependencias/css/cadastros.css">
+<link rel="stylesheet" href="dependencias/themes/TemaFacilApp.css">
+<style>
+body{padding:5px;font-family:Inter,"Segoe UI",Arial,sans-serif;font-size:14px;background:transparent}.conteudo{display:flex;flex-direction:column;min-height:calc(100vh - 10px);padding:5px}.cabecalho-pagina{margin-bottom:5px;padding:7px;border-radius:7px}.cabecalho-pagina h1{margin:0;font-size:27px;font-weight:700}.browse{flex:1;min-height:0;display:grid;grid-template-columns:150px minmax(0,1fr);gap:5px}.acoes-browse{display:grid;grid-template-rows:1fr 3.5fr 1fr 2fr 1fr 1fr;gap:5px}.grupo-acoes{display:flex;flex-direction:column;justify-content:space-evenly;gap:5px;min-height:0;margin:0!important;padding:5px;border-radius:7px}.grupo-acoes button{width:100%;height:38px;min-height:38px;margin:0;padding:0 8px;text-align:left;font-size:11px;font-weight:400}.cartao{display:flex;flex-direction:column;min-height:0;overflow:hidden;padding:0;border-radius:7px}.barra-pesquisa{padding:5px 7px;display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:700}.barra-pesquisa label{display:flex;gap:5px;align-items:center}.barra-pesquisa input{width:280px;height:25px;padding:3px 6px;font:400 11px Arial}.tabulator,.tabulator .tabulator-header,.tabulator .tabulator-row{font-size:11px}.tabulator .tabulator-cell{padding:4px 7px;font-size:11px;font-weight:400;border-right:1px solid color-mix(in srgb,var(--fa-border) 38%,transparent)!important;border-bottom:0!important}.tabulator .tabulator-col-title{font-size:11px;font-weight:700}.tabulator .tabulator-row,.tabulator .tabulator-row.tabulator-row-even,.tabulator .tabulator-row.tabulator-row-odd{background:var(--fa-panel)!important;border-bottom:1px solid color-mix(in srgb,var(--fa-border) 38%,transparent)!important}.tabulator .tabulator-row.tabulator-selected,.tabulator .tabulator-row.tabulator-selected .tabulator-cell{background:var(--fa-panel-alt)!important;color:var(--fa-text)!important}.modal-overlay{display:none;position:fixed;inset:0;z-index:20;background:rgba(23,26,16,.62)}.modal-overlay.aberto{display:block}.modal-overlay iframe{width:100%;height:100%;border:0;background:transparent}
+</style>
+<style>
+/* Modal filho: o browse permanece renderizado atrás da camada translúcida. */
+.modal-overlay { display: none; position: fixed; inset: 0; z-index: 20; align-items: center; justify-content: center; padding: 7px; background: rgba(23, 26, 16, .62); }
+.modal-overlay.aberto { display: flex; }
+.modal-overlay iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; border-radius: 0; background: transparent !important; box-shadow: none; }
+</style>
+</head>
+<body>
+<main class="conteudo">
+<header class="cabecalho-pagina">
+<h1>Credenciadores</h1>
+</header>
+<section class="browse">
+<div class="acoes-browse">
+<div class="grupo-acoes">
+<button id="atualizar">↻ Atualizar</button>
+</div>
+<div class="grupo-acoes">
+<button id="inserir">＋ Inserir</button>
+<button id="alterar" disabled>✎ Alterar</button>
+<button id="excluir" disabled>⊖ Excluir</button>
+</div>
+<div class="grupo-acoes">
+<button id="imprimir">▣ Imprimir</button>
+</div>
+<div class="grupo-acoes">
+<button id="csv">⇩ CSV</button>
+<button id="excel">▦ Excel</button>
+</div>
+<div class="grupo-acoes">
+<button id="colunas">☷ Colunas</button>
+</div>
+<div class="grupo-acoes">
+<button id="sair">↪ Sair</button>
+</div>
+</div>
+<div class="cartao">
+<div class="barra-pesquisa">
+<strong>CREDENCIADORES</strong>
+<label>Localizar: <input id="pesquisa" type="search" placeholder="Nome, e-mail ou tipo">
+</label>
+</div>
+<div id="tabela">
+</div>
+</div>
+</section>
+</main>
+<div id="modal" class="modal-overlay">
+<iframe id="editor">
+</iframe>
+</div>
+<script src="dependencias/vendor/xlsx.full.min.js">
+</script>
+<script src="dependencias/vendor/tabulator.min.js">
+</script>
+<script>(()=>{const api=location.port==='3000'?'http://127.0.0.1:5050':'',modal=document.querySelector('#modal'),editor=document.querySelector('#editor');let tabela;const abrir=d=>{const u=new URL('UpdateCredenciador.html',location.href);Object.entries(d||{}).forEach(([k,v])=>u.searchParams.set(k,v??''));u.searchParams.set('api',api);u.searchParams.set('access_token',parent.facilAppAccessToken||'');u.searchParams.set('tema',document.documentElement.dataset.theme||'jotape');editor.src=u;modal.classList.add('aberto')};const carregar=async()=>{try{const r=await fetch(api+'/api/console/credenciadores'),j=await r.json();if(!r.ok)throw Error(j.erro||'Acesso não autorizado.');tabela?.destroy();tabela=new Tabulator('#tabela',{data:j.credenciadores||[],index:'id',height:'100%',layout:'fitColumns',selectableRows:1,pagination:true,paginationSize:25,paginationSizeSelector:[25,50,100],locale:true,langs:{default:{pagination:{first:'Primeira',last:'Última',prev:'Anterior',next:'Próxima',page_size:'Linhas por página'}}},columns:[{title:'Nome',field:'nome'},{title:'E-mail',field:'email'},{title:'Tipo',field:'tipo'},{title:'Situação',field:'situacao'},{title:'Criação',field:'criado_em'}]});tabela.on('rowSelectionChanged',d=>{alterar.disabled=excluir.disabled=d.length!==1})}catch(e){document.querySelector('#tabela').textContent=e.message}};atualizar.onclick=carregar;inserir.onclick=()=>abrir();alterar.onclick=()=>abrir(tabela.getSelectedData()[0]);pesquisa.oninput=e=>{const v=e.target.value.trim();v?tabela.setFilter([{field:'nome',type:'like',value:v},{field:'email',type:'like',value:v},{field:'tipo',type:'like',value:v}]):tabela.clearFilter()};csv.onclick=()=>tabela?.download('csv','credenciadores.csv',{bom:true});excel.onclick=()=>tabela?.download('xlsx','credenciadores.xlsx',{sheetName:'Credenciadores'});imprimir.onclick=()=>window.print();window.addEventListener('message',e=>{if(e.data?.tipo==='fechar-modal'){modal.classList.remove('aberto');editor.src='about:blank';carregar()}});carregar()})();</script>
+<script>
+/* Modal de colunas: preserva o browse no fundo e aplica a escolha à grade atual. */
+(() => {
+    const modalColunas = document.querySelector('#modal');
+    const editorColunas = document.querySelector('#editor');
+    const abrirColunas = () => {
+        const tabelaAtual = Tabulator.findTable('#tabela')[0];
+        if (!tabelaAtual) return;
+        const visiveis = tabelaAtual.getColumns().filter((coluna) => coluna.isVisible()).map((coluna) => coluna.getField()).join(',');
+        const url = new URL('ColunasCredenciadores.html', location.href);
+        url.searchParams.set('tema', document.documentElement.dataset.theme || 'jotape');
+        url.searchParams.set('visiveis', visiveis);
+        editorColunas.src = url;
+        modalColunas.classList.add('aberto');
+    };
+    document.querySelector('#colunas').onclick = abrirColunas;
+    window.addEventListener('message', (evento) => {
+        if (evento.data?.tipo !== 'aplicar-colunas-credenciadores') return;
+        const tabelaAtual = Tabulator.findTable('#tabela')[0];
+        if (!tabelaAtual) return;
+        const campos = new Set(evento.data.campos || []);
+        tabelaAtual.getColumns().forEach((coluna) => campos.has(coluna.getField()) ? coluna.show() : coluna.hide());
+        modalColunas.classList.remove('aberto');
+        editorColunas.src = 'about:blank';
+    });
+})();
+</script>
+<script>
+/* Relatório é um arquivo filho: abre no mesmo modal sobre o browse. */
+(() => {
+    const modalRelatorio = document.querySelector('#modal');
+    const editorRelatorio = document.querySelector('#editor');
+    document.querySelector('#imprimir').onclick = () => {
+        const tabelaAtual = Tabulator.findTable('#tabela')[0];
+        if (!tabelaAtual) return;
+        sessionStorage.setItem('facilapp-credenciadores-relatorio', JSON.stringify(tabelaAtual.getData('active')));
+        const url = new URL('RptCredenciadores.html', location.href);
+        url.searchParams.set('tema', document.documentElement.dataset.theme || 'jotape');
+        editorRelatorio.src = url;
+        modalRelatorio.classList.add('aberto');
+    };
+})();
+</script>
+</body>
+</html>
+
+

@@ -1,0 +1,26 @@
+/* Tema Jotapê aplicado somente à documentação interativa Swagger. */
+:root {
+    --jotape-primary: #59651f;
+    --jotape-primary-dark: #414b16;
+    --jotape-background: #bfd5a5;
+    --jotape-panel: #d8e9c5;
+    --jotape-field: #eef5e5;
+    --jotape-border: #9caf77;
+    --jotape-text: #171a10;
+    --jotape-muted: #596044;
+}
+
+html, body.swagger-ui { background: var(--jotape-background); color: var(--jotape-text); }
+.swagger-ui { color: var(--jotape-text); font-family: Arial, sans-serif; }
+.swagger-ui .topbar { background: var(--jotape-primary-dark); }
+.swagger-ui .topbar .download-url-wrapper .select-label select { border: 1px solid var(--jotape-border); color: var(--jotape-text); background: var(--jotape-field); }
+.swagger-ui .info .title, .swagger-ui .info p, .swagger-ui .opblock .opblock-summary-description, .swagger-ui .opblock-description-wrapper p, .swagger-ui .opblock-external-docs-wrapper p, .swagger-ui .opblock-title_normal p { color: var(--jotape-text); }
+.swagger-ui .opblock-tag, .swagger-ui .scheme-container, .swagger-ui .opblock { background: var(--jotape-panel); border-color: var(--jotape-border); }
+.swagger-ui .opblock .opblock-summary { border-color: var(--jotape-border); }
+.swagger-ui .opblock.opblock-post, .swagger-ui .opblock.opblock-get, .swagger-ui .opblock.opblock-put, .swagger-ui .opblock.opblock-delete { border-color: var(--jotape-border); background: color-mix(in srgb, var(--jotape-panel) 92%, #ffffff); }
+.swagger-ui .btn.authorize, .swagger-ui .btn.execute { border-color: var(--jotape-primary); color: var(--jotape-primary); }
+.swagger-ui .btn.execute { background: var(--jotape-primary); color: #eef2e5; }
+.swagger-ui .btn.cancel, .swagger-ui .btn:hover { border-color: var(--jotape-primary-dark); }
+.swagger-ui input[type=text], .swagger-ui input[type=password], .swagger-ui textarea, .swagger-ui select { border-color: var(--jotape-border); background: var(--jotape-field); color: var(--jotape-text); }
+.swagger-ui .model-box, .swagger-ui .highlight-code, .swagger-ui .responses-wrapper, .swagger-ui .response-col_status, .swagger-ui table thead tr td, .swagger-ui table thead tr th { background: var(--jotape-field); color: var(--jotape-text); border-color: var(--jotape-border); }
+.swagger-ui .opblock .opblock-section-header { background: var(--jotape-panel); box-shadow: none; }

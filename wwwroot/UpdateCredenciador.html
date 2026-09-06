@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="jotape">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+        <style id="facilapp-tema-critico">html[data-theme="jotape"],html[data-theme="jotape"] body{background:#bfd5a5;color:#171a10}html[data-theme="jotape"] iframe{background:#bfd5a5}</style>
+<title>Credenciador</title>
+<link rel="stylesheet" href="dependencias/themes/TemaFacilApp.css">
+<style>*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:transparent;font:11px Arial;color:var(--fa-text)}body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:7px}.modal{width:min(520px,calc(100vw - 14px));border:1px solid var(--fa-border);border-radius:12px;overflow:hidden;background:var(--fa-panel)}header{display:flex;justify-content:space-between;align-items:center;min-height:48px;padding:7px 12px;background:var(--fa-panel-alt);border-bottom:1px solid var(--fa-border);cursor:move}h1{margin:0;font-size:18px}p{margin:2px 0 0;color:var(--fa-muted)}button{height:25px;padding:3px 9px;border:0;border-radius:5px;background:var(--fa-primary);color:var(--fa-panel);font:700 11px Arial;cursor:pointer}.fechar{width:30px;height:30px;padding:0;font-size:18px}form{padding:8px 12px 10px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:5px 7px}label{display:flex;flex-direction:column;gap:3px;font-weight:700}.full{grid-column:1/-1}input,select{height:25px;padding:3px 6px;border:1px solid var(--fa-border);border-radius:5px;background:var(--fa-field-bg);color:var(--fa-text);font:400 11px Arial}.erro{min-height:16px;color:#8a2d22}.acoes{display:flex;justify-content:flex-end;gap:7px;padding-top:7px;border-top:1px solid var(--fa-border)}.suave{background:var(--fa-panel-alt);color:var(--fa-text);border:1px solid var(--fa-border)}</style>
+<style>
+html[data-theme],
+html[data-theme] body {
+    background: transparent !important;
+}
+
+/* Prioridade visual: o cabeçalho é sempre verde mais escuro que o corpo. */
+html[data-theme] .modal {
+    background: #d8e8c2 !important;
+    border-color: #8ca965 !important;
+}
+
+html[data-theme] .modal > header {
+    background: #c8dfa9 !important;
+    border-bottom-color: #9db879 !important;
+    touch-action: none;
+}
+</style>
+</head>
+<body>
+<section class="modal">
+<header>
+<div>
+<h1 id="titulo">Credenciador</h1>
+<p>Cadastre ou altere o acesso administrativo.</p>
+</div>
+<button class="fechar" type="button">×</button>
+</header>
+<form>
+<div class="grid">
+<label>Nome *<input name="nome" required>
+</label>
+<label>E-mail *<input name="email" type="email" required>
+</label>
+<label>Senha *<input name="senha" type="password" required>
+</label>
+<label>Perfil *<select name="perfil">
+<option value="MASTER">MASTER</option>
+<option value="NORMAL">NORMAL</option>
+</select>
+</label>
+<label class="full">Tipo *<select name="tipo">
+<option value="Software House">Software House</option>
+<option value="Empresa">Empresa</option>
+</select>
+</label>
+</div>
+<p id="erro" class="erro">
+</p>
+<div class="acoes">
+<button id="cancelar" class="suave" type="button">Cancelar</button>
+<button type="submit">Gravar</button>
+</div>
+</form>
+</section>
+<script>
+(()=>{
+  const p=new URLSearchParams(location.search),id=p.get('id')||'',api=p.get('api')||(location.port==='3000'?'http://127.0.0.1:5050':''),token=p.get('access_token')||'';
+  document.documentElement.dataset.theme=p.get('tema')||'jotape';
+  const f=document.querySelector('form'),erro=document.querySelector('#erro'),fechar=()=>parent.postMessage({tipo:'fechar-modal'},'*');
+  const sqlTexto=v=>String(v??'').replaceAll("'","''");
+  const hex=bytes=>Array.from(new Uint8Array(bytes),b=>b.toString(16).padStart(2,'0')).join('');
+  const executar=async sql=>{
+    const r=await fetch(`${api}/executar`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify({funcao:'alterar',tipo_banco:'sqlite',banco:'../Dados/facilapp_sql.db',sql})});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok||j.ok===false)throw Error(j.erro||j.error||'Não foi possível gravar.');
+  };
+  document.querySelector('.fechar').onclick=fechar;document.querySelector('#cancelar').onclick=fechar;
+  for(const n of ['nome','email','tipo','perfil'])if(p.get(n))f.elements[n].value=p.get(n);
+  if(id){document.querySelector('#titulo').textContent='Alterar credenciador';f.elements.senha.required=false;f.elements.senha.placeholder='Deixe em branco para manter a senha'}
+  f.onsubmit=async e=>{e.preventDefault();if(!id){erro.textContent='Selecione um credenciador para alterar.';return}if(!token){erro.textContent='Access token não recebido pelo login.';return}
+    const d=Object.fromEntries(new FormData(f)),agora=new Date().toISOString();
+    try{
+      await executar(`UPDATE console_credenciadores SET nome='${sqlTexto(d.nome)}',email='${sqlTexto(d.email)}',tipo='${sqlTexto(d.tipo)}',atualizado_em='${agora}' WHERE id='${sqlTexto(id)}'`);
+      if(d.senha!==''){
+        const salt=crypto.getRandomValues(new Uint8Array(16));
+        const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(d.senha),'PBKDF2',false,['deriveBits']);
+        const hash=await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:210000,hash:'SHA-256'},key,256);
+        await executar(`UPDATE console_master_auth SET email='${sqlTexto(d.email)}',senha_hash=X'${hex(hash)}',senha_salt=X'${hex(salt)}',atualizado_em='${agora}' WHERE conta_id='master'`);
+      }
+      fechar();
+    }catch(x){erro.textContent=x.message}
+  };
+})();
+</script>
+<script>
+/* O cabeçalho é a alça de arraste, igual ao modal de Empresa aprovado. */
+(() => {
+    const modal = document.querySelector('.modal');
+    const cabecalho = modal.querySelector('header');
+    let inicioX = 0;
+    let inicioY = 0;
+    let deslocamentoX = 0;
+    let deslocamentoY = 0;
+
+    cabecalho.addEventListener('pointerdown', (evento) => {
+        if (evento.target.closest('button')) return;
+        inicioX = evento.clientX - deslocamentoX;
+        inicioY = evento.clientY - deslocamentoY;
+        cabecalho.setPointerCapture(evento.pointerId);
+    });
+
+    cabecalho.addEventListener('pointermove', (evento) => {
+        if (!cabecalho.hasPointerCapture(evento.pointerId)) return;
+        deslocamentoX = evento.clientX - inicioX;
+        deslocamentoY = evento.clientY - inicioY;
+        modal.style.transform = `translate(${deslocamentoX}px, ${deslocamentoY}px)`;
+    });
+
+    cabecalho.addEventListener('pointerup', (evento) => {
+        if (cabecalho.hasPointerCapture(evento.pointerId)) cabecalho.releasePointerCapture(evento.pointerId);
+    });
+
+    /* Alguns navegadores encaminham apenas eventos de mouse dentro do iframe. */
+    let arrastandoComMouse = false;
+    cabecalho.addEventListener('mousedown', (evento) => {
+        if (evento.target.closest('button')) return;
+        arrastandoComMouse = true;
+        inicioX = evento.clientX - deslocamentoX;
+        inicioY = evento.clientY - deslocamentoY;
+        evento.preventDefault();
+    });
+
+    window.addEventListener('mousemove', (evento) => {
+        if (!arrastandoComMouse) return;
+        deslocamentoX = evento.clientX - inicioX;
+        deslocamentoY = evento.clientY - inicioY;
+        modal.style.transform = `translate(${deslocamentoX}px, ${deslocamentoY}px)`;
+    });
+
+    window.addEventListener('mouseup', () => {
+        arrastandoComMouse = false;
+    });
+})();
+</script>
+</body>
+</html>
+

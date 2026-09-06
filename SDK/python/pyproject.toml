@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "facilapp-sql-sdk"
+version = "1.0.130"
+description = "SDK oficial em Python para a FacilApp SQL API"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [{name = "FacilApp"}]
+keywords = ["facilapp", "sql", "api", "oauth2"]
+classifiers = ["Programming Language :: Python :: 3", "License :: Other/Proprietary License", "Operating System :: OS Independent"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

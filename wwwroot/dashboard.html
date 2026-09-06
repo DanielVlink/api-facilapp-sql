@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="jotape">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style id="facilapp-tema-critico">html[data-theme="jotape"],html[data-theme="jotape"] body{background:#bfd5a5;color:#171a10}html[data-theme="jotape"] iframe{background:#bfd5a5}</style>
+        <title>Visão geral | FacilApp SQL</title>
+        <link rel="stylesheet" href="dependencias/themes/TemaFacilApp.css">
+        <style>
+            * { box-sizing: border-box; }
+            html, body { min-height: 100%; margin: 0; background: transparent; color: var(--fa-text); font: 14px Inter, "Segoe UI", Arial, sans-serif; }
+            main { min-height: 100vh; padding: 32px; }
+            .title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+            h1 { margin: 0 0 6px; font-size: 27px; }
+            p { margin: 0; color: var(--fa-muted); }
+            button { height: 36px; padding: 0 15px; border: 0; border-radius: 7px; background: var(--fa-primary); color: #fff; font-weight: 700; cursor: pointer; }
+            .metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-bottom: 20px; }
+            article { padding: 22px; border: 1px solid var(--fa-border); border-radius: 12px; background: var(--fa-field-bg); box-shadow: 0 3px 14px #17304d0b; }
+            article small { color: var(--fa-muted); font-weight: 700; }
+            article strong { display: block; margin-top: 12px; font-size: 34px; }
+            .server { min-height: 292px; }
+            .server h2 { margin: 0 0 16px; font-size: 21px; }
+            pre { min-height: 186px; margin: 0; padding: 12px; overflow: auto; background: var(--fa-field-bg); color: var(--fa-text); font: 12px Consolas, "Courier New", monospace; white-space: pre-wrap; }
+            @media (max-width: 760px) { main { padding: 20px; } .title, .metrics { grid-template-columns: 1fr; } .title { display: grid; gap: 14px; } }
+        </style>
+    </head>
+    <body>
+        <main>
+            <div class="title">
+                <div><h1>Visão geral</h1><p>Operação centralizada de bancos e integrações.</p></div>
+                <button id="atualizar" type="button">↻ Atualizar</button>
+            </div>
+            <section class="metrics" aria-label="Indicadores da API">
+                <article><small>EMPRESAS ATIVAS</small><strong id="empresas-ativas">1</strong></article>
+                <article><small>CREDENCIAIS</small><strong id="credenciais-ativas">5</strong></article>
+            </section>
+            <article class="server">
+                <h2>Servidor</h2>
+                <pre id="status-output">{
+  "ok": true,
+  "status": "online",
+  "instancia": "FacilApp SQL",
+  "porta": 5000,
+  "portas": [
+    5000
+  ],
+  "aplicacao": "FacilApp SQL"
+}</pre>
+            </article>
+        </main>
+        <script src="dependencias/themes/TemaFacilApp.js"></script>
+        <script>
+            document.getElementById('atualizar').addEventListener('click', () => window.location.reload());
+        </script>
+    </body>
+</html>
+

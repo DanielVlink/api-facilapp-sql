@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="jotape">
+<head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+        <style id="facilapp-tema-critico">html[data-theme="jotape"],html[data-theme="jotape"] body{background:#bfd5a5;color:#171a10}html[data-theme="jotape"] iframe{background:#bfd5a5}</style>
+    <title>Colunas — Credenciais</title>
+    <link rel="stylesheet" href="dependencias/themes/TemaFacilApp.css">
+    <style>
+        * { box-sizing: border-box; }
+        html, body { min-height: 100%; margin: 0; background: transparent !important; color: var(--fa-text); font: 11px Arial; }
+        body { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 7px; }
+        .modal { width: min(370px, calc(100vw - 14px)); overflow: hidden; border: 1px solid #8ca965; border-radius: 12px; background: #d8e8c2; }
+        html[data-theme] .modal > header { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 7px 12px; background: #c8dfa9 !important; border-bottom: 1px solid #9db879; cursor: move; touch-action: none; }
+        h1 { margin: 0; font-size: 18px; } p { margin: 2px 0 0; color: var(--fa-muted); }
+        form { padding: 8px 12px 10px; }.opcoes { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; } label { display: flex; align-items: center; gap: 6px; min-height: 25px; }
+        .acoes { display: flex; justify-content: flex-end; gap: 7px; margin-top: 8px; padding-top: 7px; border-top: 1px solid var(--fa-border); }
+        button { height: 25px; padding: 3px 9px; border: 0; border-radius: 5px; background: var(--fa-primary); color: var(--fa-panel); font: 700 11px Arial; cursor: pointer; }
+        .suave { background: #c8dfa9; color: var(--fa-text); border: 1px solid #9db879; }.fechar { width: 30px; height: 30px; padding: 0; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <section class="modal"><header><div><h1>Colunas</h1><p>Marque as informações que deseja mostrar.</p></div><button class="fechar" type="button">×</button></header>
+        <form><div class="opcoes"><label><input type="checkbox" value="nome"> Nome</label><label><input type="checkbox" value="clientId"> Client ID</label><label><input type="checkbox" value="tipo"> Tipo</label><label><input type="checkbox" value="criadoEm"> Criação</label></div><div class="acoes"><button class="suave" id="cancelar" type="button">Cancelar</button><button type="submit">Aplicar</button></div></form>
+    </section>
+    <script>
+        (() => {
+            const parametros = new URLSearchParams(location.search);
+            const modal = document.querySelector('.modal');
+            const cabecalho = document.querySelector('.modal > header');
+            const ativos = new Set((parametros.get('visiveis') || '').split(','));
+            let arrastando = false;
+            let deslocamentoX = 0;
+            let deslocamentoY = 0;
+
+            document.documentElement.dataset.theme = parametros.get('tema') || 'jotape';
+            document.querySelectorAll('input').forEach(campo => campo.checked = ativos.has(campo.value));
+
+            const fechar = () => parent.postMessage({ tipo: 'fechar-modal' }, '*');
+            document.querySelector('.fechar').onclick = fechar;
+            document.querySelector('#cancelar').onclick = fechar;
+            document.querySelector('form').onsubmit = evento => {
+                evento.preventDefault();
+                const campos = [...document.querySelectorAll('input:checked')].map(campo => campo.value);
+                if (campos.length) parent.postMessage({ tipo: 'aplicar-colunas-credenciais', campos }, '*');
+            };
+
+            cabecalho.addEventListener('pointerdown', evento => {
+                if (evento.target.closest('button')) return;
+                const limites = modal.getBoundingClientRect();
+                arrastando = true;
+                deslocamentoX = evento.clientX - limites.left;
+                deslocamentoY = evento.clientY - limites.top;
+                modal.style.position = 'fixed';
+                modal.style.margin = '0';
+                modal.style.left = `${limites.left}px`;
+                modal.style.top = `${limites.top}px`;
+                cabecalho.setPointerCapture(evento.pointerId);
+            });
+            cabecalho.addEventListener('pointermove', evento => {
+                if (!arrastando) return;
+                const esquerda = Math.max(7, Math.min(evento.clientX - deslocamentoX, innerWidth - modal.offsetWidth - 7));
+                const topo = Math.max(7, Math.min(evento.clientY - deslocamentoY, innerHeight - modal.offsetHeight - 7));
+                modal.style.left = `${esquerda}px`;
+                modal.style.top = `${topo}px`;
+            });
+            cabecalho.addEventListener('pointerup', () => arrastando = false);
+            cabecalho.addEventListener('pointercancel', () => arrastando = false);
+        })();
+    </script>
+</body>
+</html>
+

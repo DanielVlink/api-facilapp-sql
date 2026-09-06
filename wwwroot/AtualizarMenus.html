@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="jotape">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Atualizador de menus — FacilApp SQL</title>
+    <link rel="stylesheet" href="dependencias/themes/TemaFacilApp.css">
+    <style>
+        *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:"Segoe UI",Arial,sans-serif;background:var(--fa-bg,#bfd5a5);color:var(--fa-text,#171a10);font-size:11px}body{padding:7px}.pagina{max-width:1120px;margin:0 auto}.card{border:1px solid var(--fa-border,#9caf7e);border-radius:10px;background:var(--fa-panel,#dcebc9);overflow:hidden}.card-header{display:flex;align-items:center;justify-content:space-between;gap:7px;padding:10px 12px;background:var(--fa-panel-alt,#c7dda9);border-bottom:1px solid var(--fa-border,#9caf7e)}.card-header h1{font-size:20px;margin:0}.card-header p{margin:3px 0 0;color:var(--fa-muted,#546347)}.conteudo{padding:7px;display:grid;gap:7px}.aviso{border-left:4px solid var(--fa-primary,#52691b);border-radius:7px;background:var(--fa-input-bg,#edf5e3);padding:8px 10px;line-height:1.45}.configuracao{display:grid;grid-template-columns:260px 1fr;gap:7px;align-items:end}.campo{display:grid;gap:3px;font-weight:700}.campo input[type="text"],.campo input[type="file"]{width:100%;height:25px;min-height:25px;border:1px solid var(--fa-border,#98ad77);border-radius:7px;background:var(--fa-input-bg,#edf5e3);color:var(--fa-text,#171a10);font:11px "Segoe UI",Arial,sans-serif;padding:3px 6px}.arquivos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.arquivo{border:1px solid var(--fa-border,#9caf7e);border-radius:8px;background:var(--fa-panel-alt,#cfe2b7);padding:8px;display:grid;gap:6px}.arquivo h2{font-size:13px;margin:0;color:var(--fa-primary,#40550f)}.arquivo p{margin:0;color:var(--fa-muted,#546347);line-height:1.4}.arquivo-status{min-height:25px;border-radius:7px;background:var(--fa-input-bg,#edf5e3);padding:6px;color:var(--fa-muted,#546347)}.arquivo-status.ok{color:#285c18;font-weight:700}.arquivo-status.erro{color:#9a241f;font-weight:700}.resumo{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.indicador{border:1px solid var(--fa-border,#9caf7e);border-radius:8px;background:var(--fa-input-bg,#edf5e3);padding:8px}.indicador strong{display:block;font-size:18px;color:var(--fa-primary,#40550f)}.acoes{display:flex;justify-content:flex-end;align-items:center;gap:7px;border-top:1px solid var(--fa-border,#9caf7e);padding-top:7px}.acoes button{height:25px;border:1px solid var(--fa-primary,#52691b);border-radius:7px;padding:3px 14px;font:700 11px "Segoe UI",Arial,sans-serif;cursor:pointer}.acoes button.primary{background:var(--fa-primary,#52691b);color:var(--fa-button-text,#fff)}.acoes button:disabled{opacity:.5;cursor:not-allowed}.resultado{display:none;white-space:pre-wrap;overflow-wrap:anywhere;border-radius:7px;padding:8px;background:var(--fa-input-bg,#edf5e3);border:1px solid var(--fa-border,#9caf7e);line-height:1.45}.resultado.visivel{display:block}.resultado.erro{border-color:#a9433c;color:#8c1f1a}@media(max-width:850px){.arquivos,.resumo{grid-template-columns:1fr}.configuracao{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+<main class="pagina">
+    <section class="card">
+        <header class="card-header">
+            <div><h1>Atualizador de menus</h1><p>Importe os três arquivos do projeto e aplique o perfil nos usuários ativos do SQLite.</p></div>
+        </header>
+        <div class="conteudo">
+            <div class="aviso"><b>Operação protegida:</b> o banco deve estar dentro do diretório SQLite configurado no INI. Antes da alteração, a API cria automaticamente uma cópia na pasta <b>BKP</b>.</div>
+            <div class="configuracao">
+                <label class="campo">Banco SQLite
+                    <input id="banco" type="text" value="CURSO.db" autocomplete="off" spellcheck="false">
+                </label>
+                <div>Informe somente o nome do arquivo, sem caminho absoluto. Exemplo: <b>CURSO.db</b>.</div>
+            </div>
+            <div class="arquivos">
+                <article class="arquivo">
+                    <h2>1. Menu lateral</h2>
+                    <p>Selecione o arquivo <b>MenuData.js</b>.</p>
+                    <label class="campo">Arquivo<input id="menu-data" type="file" accept=".js,application/javascript,text/javascript"></label>
+                    <div id="menu-data-status" class="arquivo-status">Aguardando arquivo.</div>
+                </article>
+                <article class="arquivo">
+                    <h2>2. Menu superior</h2>
+                    <p>Selecione o arquivo <b>MenuSuperiorData.js</b>.</p>
+                    <label class="campo">Arquivo<input id="menu-superior-data" type="file" accept=".js,application/javascript,text/javascript"></label>
+                    <div id="menu-superior-data-status" class="arquivo-status">Aguardando arquivo.</div>
+                </article>
+                <article class="arquivo">
+                    <h2>3. Dashboards</h2>
+                    <p>Selecione o arquivo <b>DashboardData.js</b>.</p>
+                    <label class="campo">Arquivo<input id="dashboard-data" type="file" accept=".js,application/javascript,text/javascript"></label>
+                    <div id="dashboard-data-status" class="arquivo-status">Aguardando arquivo.</div>
+                </article>
+            </div>
+            <div class="resumo" aria-label="Resumo dos arquivos">
+                <div class="indicador"><strong id="total-lateral">0</strong><span>itens laterais</span></div>
+                <div class="indicador"><strong id="total-superior">0</strong><span>itens superiores</span></div>
+                <div class="indicador"><strong id="total-dashboards">0</strong><span>dashboards</span></div>
+            </div>
+            <pre id="resultado" class="resultado" role="status"></pre>
+            <div class="acoes"><button id="aplicar" class="primary" type="button" disabled>Aplicar menus</button></div>
+        </div>
+    </section>
+</main>
+<script src="dependencias/themes/TemaFacilApp.js"></script>
+<script>
+    const catalogos = {
+        menuData: null,
+        menuSuperiorData: null,
+        dashboardData: null
+    };
+
+    /**
+     * Extrai a primeira lista atribuída em um arquivo de catálogo sem executar
+     * o JavaScript selecionado pelo operador.
+     * @param {string} codigo Conteúdo textual do arquivo.
+     * @returns {Array<object>} Lista JSON validada.
+     */
+    function extrairListaJson(codigo) {
+        const inicio = codigo.indexOf('[');
+        if (inicio < 0) throw new Error('Lista JSON não encontrada.');
+
+        let profundidade = 0;
+        let aspas = '';
+        let escape = false;
+        for (let indice = inicio; indice < codigo.length; indice += 1) {
+            const caractere = codigo[indice];
+            if (aspas) {
+                if (escape) escape = false;
+                else if (caractere === '\\') escape = true;
+                else if (caractere === aspas) aspas = '';
+                continue;
+            }
+            if (caractere === '"' || caractere === "'") {
+                aspas = caractere;
+                continue;
+            }
+            if (caractere === '[') profundidade += 1;
+            if (caractere === ']') profundidade -= 1;
+            if (profundidade === 0) {
+                const lista = JSON.parse(codigo.slice(inicio, indice + 1));
+                if (!Array.isArray(lista)) throw new Error('O catálogo não contém uma lista.');
+                return lista;
+            }
+        }
+        throw new Error('A lista do arquivo está incompleta.');
+    }
+
+    /** Atualiza a disponibilidade do botão Aplicar. */
+    function atualizarBotao() {
+        document.getElementById('aplicar').disabled = !(
+            Array.isArray(catalogos.menuData) &&
+            Array.isArray(catalogos.menuSuperiorData) &&
+            Array.isArray(catalogos.dashboardData)
+        );
+    }
+
+    /**
+     * Lê e valida um dos três arquivos selecionados.
+     * @param {Event} evento Evento change do campo de arquivo.
+     * @param {string} propriedade Propriedade correspondente no payload.
+     * @param {string} statusId Elemento usado para informar o resultado.
+     * @param {string} totalId Indicador numérico do catálogo.
+     */
+    async function carregarArquivo(evento, propriedade, statusId, totalId) {
+        const arquivo = evento.target.files[0];
+        const status = document.getElementById(statusId);
+        catalogos[propriedade] = null;
+        document.getElementById(totalId).textContent = '0';
+        status.className = 'arquivo-status';
+        status.textContent = 'Aguardando arquivo.';
+        atualizarBotao();
+        if (!arquivo) return;
+
+        try {
+            const lista = extrairListaJson(await arquivo.text());
+            catalogos[propriedade] = lista;
+            document.getElementById(totalId).textContent = String(lista.length);
+            status.className = 'arquivo-status ok';
+            status.textContent = arquivo.name + ' — ' + lista.length + ' item(ns) válidos.';
+        } catch (erro) {
+            status.className = 'arquivo-status erro';
+            status.textContent = arquivo.name + ' — ' + erro.message;
+        }
+        atualizarBotao();
+    }
+
+    /** Envia os três catálogos validados para o endpoint administrativo. */
+    async function aplicarMenus() {
+        const banco = document.getElementById('banco').value.trim();
+        const botao = document.getElementById('aplicar');
+        const resultado = document.getElementById('resultado');
+        if (!banco) {
+            resultado.className = 'resultado visivel erro';
+            resultado.textContent = 'Informe o banco SQLite.';
+            return;
+        }
+        if (!window.confirm('Aplicar os três menus a todos os usuários ativos de ' + banco + '?')) return;
+
+        botao.disabled = true;
+        resultado.className = 'resultado visivel';
+        resultado.textContent = 'Aplicando menus e criando backup...';
+        try {
+            const resposta = await fetch('/api/console/menus/aplicar-sqlite', {
+                method: 'PUT',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    banco,
+                    menu_data: catalogos.menuData,
+                    menu_superior_data: catalogos.menuSuperiorData,
+                    dashboard_data: catalogos.dashboardData
+                })
+            });
+            const retorno = await resposta.json();
+            if (!resposta.ok || retorno.ok === false) {
+                throw new Error(retorno.erro || ('HTTP ' + resposta.status));
+            }
+            resultado.className = 'resultado visivel';
+            resultado.textContent =
+                'Concluído.\n' +
+                'Banco: ' + retorno.banco + '\n' +
+                'Usuários atualizados: ' + retorno.usuariosAtualizados + '\n' +
+                'Backup: ' + retorno.backup;
+        } catch (erro) {
+            resultado.className = 'resultado visivel erro';
+            resultado.textContent = 'Falha ao aplicar os menus: ' + erro.message;
+        } finally {
+            atualizarBotao();
+        }
+    }
+
+    document.getElementById('menu-data').addEventListener('change', evento =>
+        carregarArquivo(evento, 'menuData', 'menu-data-status', 'total-lateral'));
+    document.getElementById('menu-superior-data').addEventListener('change', evento =>
+        carregarArquivo(evento, 'menuSuperiorData', 'menu-superior-data-status', 'total-superior'));
+    document.getElementById('dashboard-data').addEventListener('change', evento =>
+        carregarArquivo(evento, 'dashboardData', 'dashboard-data-status', 'total-dashboards'));
+    document.getElementById('aplicar').addEventListener('click', aplicarMenus);
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <AssemblyName>FacilApp.Sql.Api</AssemblyName>
+    <Version>1.0.17.0</Version>
+    <AssemblyVersion>1.0.17.0</AssemblyVersion>
+    <FileVersion>1.0.17.0</FileVersion>
+    <InformationalVersion>1.0.17</InformationalVersion>
+    <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <PlatformTarget>x64</PlatformTarget>
+    <ApplicationIcon>..\Exe\Icone FacilApp API Azul.ico</ApplicationIcon>
+    <!-- Impede que artefatos do projeto de smoke test entrem nos static web assets da API. -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);tests\**;BKP\**</DefaultItemExcludes>
+    <!--
+      O código foi recuperado do binário atual para preservar funções aprovadas.
+      CS8632 decorre das anotações mantidas pelo decompilador sem contexto Nullable;
+      CA1416 é esperado porque HFSQL usa ODBC e a aplicação é exclusivamente Windows;
+      AD0001 é uma falha interna do analisador de rotas sobre delegates decompilados.
+    -->
+    <NoWarn>$(NoWarn);CS8632;CA1416;AD0001</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>14.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- O projeto de smoke test possui seu próprio ponto de entrada e não integra o executável da API. -->
+    <Compile Remove="tests\**\*.cs" />
+    <None Remove="tests\**\*" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- O lançador pertence exclusivamente à porta local da Ponte Claude. -->
+    <Content Include="Bridge\lancador.html" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.2" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.10" />
+    <PackageReference Include="MySqlConnector" Version="2.5.0" />
+    <PackageReference Include="Npgsql" Version="10.0.0" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.100" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
+    <PackageReference Include="System.Data.Odbc" Version="10.0.0" />
+  </ItemGroup>
+</Project>
+

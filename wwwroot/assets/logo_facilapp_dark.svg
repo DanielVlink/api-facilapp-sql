@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Variante para fundos escuros: preserva o dourado e substitui o verde por branco. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 160" role="img" aria-labelledby="titulo descricao">
+    <title id="titulo">FacilApp</title>
+    <desc id="descricao">Marca institucional FacilApp em branco e dourado para fundos escuros.</desc>
+    <g>
+        <rect x="20" y="20" width="120" height="120" rx="28" fill="none" stroke="#ffffff" stroke-width="14"/>
+        <path d="M45 80 68 103 115 53" fill="none" stroke="#d99b1c" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="175" y="115" font-family="Segoe UI, Arial, sans-serif" font-weight="800" font-size="108" letter-spacing="-2">
+            <tspan fill="#ffffff">Facil </tspan><tspan fill="#d99b1c">App</tspan>
+        </text>
+    </g>
+</svg>

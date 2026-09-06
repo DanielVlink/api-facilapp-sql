@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="jotape">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+        <style id="facilapp-tema-critico">html[data-theme="jotape"],html[data-theme="jotape"] body{background:#bfd5a5;color:#171a10}html[data-theme="jotape"] iframe{background:#bfd5a5}</style>
+    <title>Colunas — Credenciadores</title>
+    <link rel="stylesheet" href="dependencias/themes/TemaFacilApp.css">
+    <style>
+        * { box-sizing: border-box; }
+        html, body { margin: 0; min-height: 100%; background: transparent !important; font: 11px Arial; color: var(--fa-text); }
+        body { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 7px; }
+        .modal { width: min(370px, calc(100vw - 14px)); background: #d8e8c2; border: 1px solid #8ca965; border-radius: 12px; overflow: hidden; }
+        /* Seletor prioritário: o tema não pode apagar o verde mais escuro do cabeçalho. */
+        html[data-theme] .modal > header { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 7px 12px; background: #c8dfa9 !important; border-bottom: 1px solid #9db879; cursor: move; touch-action: none; }
+        h1 { margin: 0; font-size: 18px; }
+        p { margin: 2px 0 0; color: var(--fa-muted); }
+        form { padding: 8px 12px 10px; }
+        .opcoes { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+        label { display: flex; align-items: center; gap: 6px; min-height: 25px; }
+        input { accent-color: var(--fa-primary); }
+        .acoes { display: flex; justify-content: flex-end; gap: 7px; margin-top: 8px; padding-top: 7px; border-top: 1px solid var(--fa-border); }
+        button { height: 25px; padding: 3px 9px; border: 0; border-radius: 5px; background: var(--fa-primary); color: var(--fa-panel); font: 700 11px Arial; cursor: pointer; }
+        .suave { background: var(--fa-panel-alt); color: var(--fa-text); border: 1px solid var(--fa-border); }
+        .fechar { width: 30px; height: 30px; padding: 0; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <section class="modal">
+        <header>
+            <div><h1>Colunas</h1><p>Marque as informações que deseja mostrar.</p></div>
+            <button class="fechar" type="button" aria-label="Fechar">×</button>
+        </header>
+        <form>
+            <div class="opcoes">
+                <label><input type="checkbox" value="nome"> Nome</label>
+                <label><input type="checkbox" value="email"> E-mail</label>
+                <label><input type="checkbox" value="tipo"> Tipo</label>
+                <label><input type="checkbox" value="situacao"> Situação</label>
+                <label><input type="checkbox" value="criado_em"> Criação</label>
+            </div>
+            <div class="acoes"><button class="suave" id="cancelar" type="button">Cancelar</button><button type="submit">Aplicar</button></div>
+        </form>
+    </section>
+    <script>
+        (() => {
+            const parametros = new URLSearchParams(location.search);
+            document.documentElement.dataset.theme = parametros.get('tema') || 'jotape';
+            const selecionadas = new Set((parametros.get('visiveis') || '').split(','));
+            document.querySelectorAll('input[type="checkbox"]').forEach((campo) => campo.checked = selecionadas.has(campo.value));
+            const fechar = () => parent.postMessage({ tipo: 'fechar-modal' }, '*');
+            document.querySelector('.fechar').onclick = fechar;
+            document.querySelector('#cancelar').onclick = fechar;
+            document.querySelector('form').onsubmit = (evento) => {
+                evento.preventDefault();
+                const campos = [...document.querySelectorAll('input:checked')].map((campo) => campo.value);
+                if (!campos.length) return;
+                parent.postMessage({ tipo: 'aplicar-colunas-credenciadores', campos }, '*');
+            };
+        })();
+    </script>
+</body>
+</html>
+

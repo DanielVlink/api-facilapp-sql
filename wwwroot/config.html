@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style id="facilapp-tema-critico">html[data-theme="jotape"],html[data-theme="jotape"] body{background:#bfd5a5;color:#171a10}html[data-theme="jotape"] iframe{background:#bfd5a5}</style>
+    <title>Configurações — FacilApp SQL</title>
+    <link rel="stylesheet" href="css/config-base.css">
+    <link rel="stylesheet" href="css/configuracoes.css">
+    <link rel="stylesheet" href="dependencias/themes/TemaFacilApp.css">
+</head>
+<body class="settings-body embedded">
+    <!-- Navegação fixa da configuração local aberta pelo aplicativo de bandeja. -->
+    <aside>
+        <div class="brand">
+            <span>F</span>
+            <div>
+                <strong>FacilApp SQL</strong>
+                <small>Configurações</small>
+            </div>
+        </div>
+        <nav>
+            <a href="index.html">← Painel administrativo</a>
+            <a href="#geral">⚙ Configuração geral</a>
+            <a href="#bancos">◉ Bancos de dados</a>
+            <a href="#mapa">⌖ Mapa</a>
+            <a href="#zapi">◉ Z-API</a>
+            <a href="#alertas">⚠ Alertas de falha</a>
+        </nav>
+        <footer>
+            <span id="health-dot"></span>
+            <b id="health-text">Verificando...</b>
+        </footer>
+    </aside>
+
+    <main>
+        <!-- Cabeçalho preserva o retorno rápido ao painel administrativo. -->
+        <header>
+            <div>
+                <small>FACILAPP</small>
+                <strong>SQL</strong>
+            </div>
+            <a class="soft" href="index.html">Voltar ao painel</a>
+        </header>
+
+        <section class="settings-content">
+            <div class="title">
+                <div>
+                    <h1>Configuração da API</h1>
+                    <p>Parâmetros organizados e testáveis, sem exibir segredos gravados.</p>
+                </div>
+            </div>
+
+            <div class="notice">
+                Senhas e tokens em branco preservam os valores atuais. Nenhum segredo é devolvido pela API.
+            </div>
+
+            <section id="geral" class="general-section">
+                <!-- Configuração operacional persistida diretamente no FacilAppSQL.ini. -->
+                <div class="general-heading">
+                    <h2>Configuração local — Servidor API</h2>
+                    <p>
+                        Porta, segurança, limites e log da instalação. Alterações estruturais exigem reinício do serviço.
+                    </p>
+                </div>
+
+                <div class="local-access-note">
+                    <strong>Acesso local:</strong>
+                    esta tela é aberta pelo ícone da bandeja e não exibe o token já gravado.
+                </div>
+
+                <form id="general-form" class="card settings-grid general-grid">
+                    <h3 class="wide">Servidor HTTP e segurança</h3>
+
+                    <label>
+                        Instância
+                        <input name="nomeInstancia" required maxlength="80">
+                    </label>
+                    <label>
+                        Serviço Windows
+                        <input name="nomeServicoWindows" required maxlength="120">
+                    </label>
+                    <label>
+                        Porta da API
+                        <input name="porta" type="number" min="1" max="65535" required>
+                    </label>
+                    <label>
+                        Timeout (segundos)
+                        <input name="timeoutSegundos" type="number" min="1" max="600" required>
+                    </label>
+
+                    <label class="wide">
+                        Base URL local
+                        <input name="baseUrlLocal" class="readonly-input" readonly>
+                    </label>
+
+                    <label class="wide">
+                        Novo token da API
+                        <input
+                            name="token"
+                            type="password"
+                            autocomplete="new-password"
+                            placeholder="Em branco mantém o token atual">
+                    </label>
+
+                    <label>
+                        Limite do corpo (KB)
+                        <input name="limiteCorpoKb" type="number" min="1" max="1048576" required>
+                    </label>
+                    <label>
+                        Máximo de conexões
+                        <input name="maximoConexoes" type="number" min="1" max="100000" required>
+                    </label>
+
+                    <h3 class="wide settings-subsection">Ponte Claude integrada</h3>
+
+                    <label class="check">
+                        <input name="ponteClaudeAtiva" type="checkbox">
+                        Ativar Ponte Claude
+                    </label>
+                    <label>
+                        Porta da Ponte
+                        <input name="portaPonteClaude" type="number" min="1" max="65535" required>
+                    </label>
+
+                    <label class="wide">
+                        Base URL da Ponte
+                        <input name="baseUrlPonteClaude" class="readonly-input" readonly>
+                    </label>
+
+                    <label class="wide">
+                        Novo token da Ponte
+                        <input
+                            name="tokenPonteClaude"
+                            type="password"
+                            autocomplete="new-password"
+                            placeholder="Em branco mantém o token atual">
+                    </label>
+
+                    <p class="field-help wide">
+                        O token é aplicado sem reiniciar. Alterações em Ativo ou Porta exigem reinício do serviço.
+                        O lançador fica disponível em <strong>/lancador.html</strong> na porta da Ponte.
+                    </p>
+
+                    <label>
+                        Nível do log
+                        <select name="nivelLog">
+                            <option>TRACE</option>
+                            <option>DEBUG</option>
+                            <option>INFO</option>
+                            <option>WARN</option>
+                            <option>ERROR</option>
+                            <option>FATAL</option>
+                        </select>
+                    </label>
+                    <label>
+                        Retenção do log (dias)
+                        <input name="retencaoDias" type="number" min="1" max="3650" required>
+                    </label>
+
+                    <div class="checkbox-list wide" aria-label="Opções gerais do servidor">
+                        <label class="check"><input name="servidorAtivo" type="checkbox"> API ativa</label>
+                        <label class="check"><input name="exigirToken" type="checkbox"> Exigir token</label>
+                        <label class="check"><input name="consultaLivre" type="checkbox"> Consulta livre</label>
+                        <label class="check"><input name="permitirLocalhost" type="checkbox"> Localhost</label>
+                        <label class="check"><input name="permitirRedeLocal" type="checkbox"> Rede local</label>
+                        <label class="check"><input name="permitirTailscale" type="checkbox"> Tailscale</label>
+                        <label class="check"><input name="logAtivo" type="checkbox"> Log ativo</label>
+                    </div>
+
+                    <div class="restart-warning wide" id="restart-warning" role="status">
+                        A gravação não reinicia o serviço automaticamente.
+                    </div>
+
+                    <!-- Repositório portátil usado pelo envio e pela consulta de anexos. -->
+                    <h3 class="wide settings-subsection">Arquivos e anexos</h3>
+
+                    <label class="check">
+                        <input name="arquivosAtivos" type="checkbox">
+                        Ativar envio de anexos
+                    </label>
+                    <label>
+                        Tamanho máximo (MB)
+                        <input
+                            name="tamanhoMaximoArquivoMb"
+                            type="number"
+                            min="1"
+                            max="1024"
+                            required>
+                    </label>
+
+                    <label class="wide">
+                        Diretório-base do ERP
+                        <input name="diretorioBaseArquivos" required maxlength="500">
+                    </label>
+
+                    <label class="wide">
+                        Extensões permitidas
+                        <input
+                            name="extensoesPermitidas"
+                            required
+                            placeholder="pdf,jpg,jpeg,png,webp,xml,ini,js,json,txt,csv">
+                    </label>
+
+                    <p class="field-help wide">
+                        O diretório é definido uma vez pelo administrador. A aplicação envia apenas a categoria do anexo,
+                        nunca um caminho do Windows. Caminhos relativos são criados ao lado do EXE.
+                    </p>
+
+                    <div class="actions wide">
+                        <button class="primary" type="submit">Salvar configuração geral</button>
+                    </div>
+                </form>
+
+                <!-- Artefatos portáteis para integrar aplicações sem digitar novamente os parâmetros locais. -->
+                <div class="configuration-artifacts">
+                    <article class="card configuration-file-card">
+                        <div class="configuration-file-heading">
+                            <h3 id="ini-file-name">FacilAppSQL.ini</h3>
+                            <div class="configuration-file-actions">
+                                <button class="soft" data-copy-file="ini" type="button">Copiar</button>
+                                <button class="primary" data-download-file="ini" type="button">Baixar</button>
+                            </div>
+                        </div>
+                        <textarea
+                            id="ini-preview"
+                            class="configuration-preview"
+                            aria-label="Prévia editável do INI instalado"
+                            spellcheck="false"></textarea>
+                    </article>
+
+                    <article class="card configuration-file-card">
+                        <div class="configuration-file-heading">
+                            <h3 id="config-js-file-name">config.js</h3>
+                            <div class="configuration-file-actions">
+                                <button class="soft" data-copy-file="config-js" type="button">Copiar</button>
+                                <button class="primary" data-download-file="config-js" type="button">Baixar</button>
+                            </div>
+                        </div>
+                        <textarea
+                            id="config-js-preview"
+                            class="configuration-preview"
+                            aria-label="Prévia do config.js"
+                            spellcheck="false"
+                            readonly></textarea>
+                        <p class="configuration-secret-note">
+                            O token aparece mascarado na prévia. Copiar e baixar usam o valor completo.
+                        </p>
+                    </article>
+                </div>
+
+                <article class="card apply-configuration-card">
+                    <h3>Aplicar no servidor local</h3>
+                    <p>
+                        A gravação aceita somente acesso originado no servidor autorizado. Valores mascarados com
+                        <code>********</code> preservam as senhas e tokens instalados.
+                    </p>
+                    <div class="apply-configuration-actions">
+                        <button class="soft" id="reload-installed-ini" type="button">Carregar INI instalado</button>
+                        <button class="primary" id="apply-installed-ini" type="button">Gravar INI no servidor</button>
+                        <span id="configuration-file-status" role="status">INI carregado da raiz do EXE.</span>
+                    </div>
+                </article>
+            </section>
+
+            <section id="bancos">
+                <!-- Os formulários de banco são renderizados pelo JavaScript sem revelar senhas. -->
+                <h2>Bancos de dados</h2>
+                <div id="database-tabs" class="database-tabs"></div>
+                <div id="database-panels"></div>
+            </section>
+
+            <section id="mapa" class="card settings-card">
+                <!-- Configuração compartilhada pela integração de geolocalização. -->
+                <h2>Mapa — OpenStreetMap</h2>
+                <form id="map-form" class="settings-grid">
+                    <label class="wide">
+                        Identificação do aplicativo (User-Agent)
+                        <input name="mapaUserAgent" required>
+                    </label>
+                    <button class="primary">Salvar mapa</button>
+                </form>
+            </section>
+
+            <section id="zapi" class="card settings-card">
+                <!-- Tokens de integração em branco preservam os segredos existentes. -->
+                <h2>API Z-API</h2>
+                <form id="integration-form" class="settings-grid">
+                    <label class="check"><input name="zApiAtiva" type="checkbox"> Ativar Z-API</label>
+                    <label class="wide">URL base<input name="zApiBaseUrl" type="url" required></label>
+                    <label>ID da instância<input name="zApiInstanceId"></label>
+                    <label>
+                        Token da instância
+                        <input name="zApiInstanceToken" type="password" placeholder="Em branco mantém o atual">
+                    </label>
+                    <label>
+                        Client Token
+                        <input name="zApiClientToken" type="password" placeholder="Em branco mantém o atual">
+                    </label>
+                    <h3 id="alertas" class="wide">Alertas automáticos de falha</h3>
+                    <label class="check">
+                        <input name="alertasAtivos" type="checkbox">
+                        Enviar falhas para a FacilApp
+                    </label>
+                    <label>
+                        Número WhatsApp da FacilApp
+                        <input name="numeroFacilApp" inputmode="tel" placeholder="5511999999999">
+                    </label>
+                    <div class="actions wide"><button class="primary">Salvar integrações</button></div>
+                </form>
+            </section>
+        </section>
+    </main>
+
+    <div id="toast"></div>
+    <script src="dependencias/themes/TemaFacilApp.js"></script>
+    <script src="js/configuracoes.js"></script>
+</body>
+</html>
+
+

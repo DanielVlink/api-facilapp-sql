@@ -1,0 +1,61 @@
+/* Estrutura do shell: menu global, seletor de tema e iframe. Cores: TemaFacilApp.css. */
+* { box-sizing: border-box; }
+html, body { width: 100%; min-width: 320px; min-height: 100%; margin: 0; }
+body { display: flex; min-height: 100vh; background: var(--fa-background); color: var(--fa-text); font: 14px Inter, "Segoe UI", Arial, sans-serif; }
+
+.topbar { position: fixed; z-index: 50; inset: 0 0 auto 0; display: flex; align-items: center; justify-content: space-between; height: 64px; padding: 0 20px; border-bottom: 1px solid var(--fa-border); background: var(--fa-panel); box-shadow: 0 1px 8px #1720330d; }
+.brand { display: flex; align-items: center; gap: 5px; }
+.brand .app-logo { width: 158px; height: auto; }
+.product-name { display: inline-flex; align-items: center; justify-content: center; min-width: 32px; height: 19px; padding: 0 7px; border-radius: 5px; background: var(--fa-primary); color: #fff; font-size: 10px; font-weight: 800; }
+.header-tools { display: flex; align-items: center; gap: 10px; }
+.theme-picker { display: flex; align-items: center; gap: 8px; color: var(--fa-muted); font-size: 12px; }
+.theme-picker select { width: 142px; height: 30px; padding: 0 8px; border-radius: 7px; }
+.reset-theme { width: 30px; height: 30px; padding: 0; border: 1px solid var(--fa-border); border-radius: 8px; font-size: 15px; }
+.user-summary { display: flex; align-items: center; gap: 8px; padding-left: 2px; }
+.user-avatar { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 50%; background: var(--fa-panel-alt); color: var(--fa-primary); font-weight: 800; }
+.user-summary strong { max-width: 190px; overflow: hidden; color: var(--fa-text); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.user-summary button { padding: 7px 9px; border: 0; border-radius: 7px; background: transparent; color: var(--fa-muted); cursor: pointer; }
+.user-summary button:hover { background: var(--fa-panel-alt); color: var(--fa-text); }
+
+aside { position: fixed; z-index: 10; inset: 64px auto 0 0; display: flex; flex-direction: column; width: 250px; padding: 20px 14px 0; border-right: 1px solid var(--fa-border); background: var(--sidebar-bg); }
+.menu-label { display: block; height: 25px; padding: 0 10px 10px; color: var(--fa-muted); font: 11px Inter, "Segoe UI", Arial, sans-serif; letter-spacing: .04em; }
+nav { display: grid; width: 221px; gap: 6px; }
+nav button { display: flex; align-items: center; gap: 8px; width: 100%; height: 39px; padding: 12px; border: 0; border-radius: 8px; background: transparent; color: var(--sidebar-text, var(--fa-text)); font: 650 13.3333px Arial, sans-serif; text-align: left; cursor: pointer; }
+nav button:hover, nav button.active { background: var(--sidebar-active); color: #fff; }
+.nav-symbol { display: inline-flex; flex: 0 0 18px; width: 18px; align-items: center; justify-content: center; font-size: 15px; line-height: 1; }
+
+aside footer { display: grid; grid-template-columns: 12px 1fr; gap: 4px 8px; height: 76px; margin-top: auto; margin-right: -14px; margin-left: -14px; padding: 18px 22px; border-top: 1px solid var(--fa-border); background: var(--sidebar-footer, var(--fa-panel)); }
+aside footer span { width: 9px; height: 9px; margin-top: 4px; border-radius: 50%; background: var(--fa-muted); }
+aside footer span.ok { background: #14a66f; }
+aside footer b { font-size: 12px; }
+aside footer small { grid-column: 2; color: var(--fa-muted); }
+
+main { width: calc(100% - 250px); height: calc(100vh - 64px); margin-top: 64px; margin-left: 250px; background: var(--fa-background); }
+#conteudo-frame { display: block; width: 100%; height: 100%; border: 0; background: var(--fa-background); }
+#conteudo-frame.is-loading { visibility: hidden; }
+
+@media (max-width: 760px) {
+    .topbar { padding: 0 12px; }
+    .theme-picker > span { display: none; }
+    .user-summary strong { display: none; }
+    .theme-picker select { width: 120px; }
+    aside { width: 64px; padding-right: 7px; padding-left: 7px; }
+    .menu-label, nav button span:not(.nav-symbol), aside footer b, aside footer small { display: none; }
+    nav { width: 50px; }
+    nav button { justify-content: center; padding: 3px; }
+    main { width: calc(100% - 64px); margin-left: 64px; }
+}
+
+
+/* Acesso da console: modal do shell, mantido dentro da paleta do tema ativo. */
+.auth-overlay { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 20px; background: color-mix(in srgb, var(--fa-background) 58%, #000); }
+.auth-overlay[hidden] { display: none; }
+.auth-card { width: min(360px, 100%); padding: 0; overflow: hidden; border: 1px solid var(--fa-border); border-radius: 7px; background: var(--fa-panel); box-shadow: 0 14px 32px #0004; }
+.auth-card header { padding: 9px 12px; border-bottom: 1px solid var(--fa-border); background: var(--fa-panel-alt); }
+.auth-card h1 { margin: 0; font-size: 17px; }
+.auth-card p { margin: 3px 0 0; color: var(--fa-muted); font-size: 11px; }
+.auth-card form { display: grid; gap: 7px; padding: 12px; }
+.auth-card label { display: grid; gap: 3px; font-size: 11px; font-weight: 700; }
+.auth-card input { width: 100%; height: 25px; padding: 3px 6px; border: 1px solid var(--fa-border); border-radius: 7px; background: var(--fa-field-bg); color: var(--fa-text); font: 11px Arial, sans-serif; }
+.auth-card .auth-error { min-height: 14px; margin: 0; color: #a52727; font-size: 11px; }
+.auth-card button { justify-self: end; height: 30px; padding: 0 12px; border: 0; border-radius: 7px; background: var(--fa-primary); color: #fff; font: 600 11px Arial, sans-serif; cursor: pointer; }

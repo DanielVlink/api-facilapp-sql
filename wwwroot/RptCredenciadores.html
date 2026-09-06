@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="jotape">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+        <style id="facilapp-tema-critico">html[data-theme="jotape"],html[data-theme="jotape"] body{background:#bfd5a5;color:#171a10}html[data-theme="jotape"] iframe{background:#bfd5a5}</style>
+    <title>Relatório de credenciadores</title>
+    <link rel="stylesheet" href="dependencias/themes/TemaFacilApp.css">
+    <style>
+        * { box-sizing: border-box; }
+        html, body { margin: 0; min-height: 100%; background: transparent !important; font: 11px Arial; color: var(--fa-text); }
+        body { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 7px; }
+        .modal { width: min(920px, calc(100vw - 28px)); max-height: min(620px, calc(100vh - 28px)); display: flex; flex-direction: column; overflow: hidden; background: #d8e8c2; border: 1px solid #8ca965; border-radius: 12px; }
+        html[data-theme] .modal > header { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 7px 12px; background: #c8dfa9 !important; border-bottom: 1px solid #9db879; cursor: move; touch-action: none; }
+        h1 { margin: 0; font-size: 18px; }
+        p { margin: 2px 0 0; color: var(--fa-muted); }
+        .fechar, button { height: 25px; padding: 3px 9px; border: 0; border-radius: 5px; background: var(--fa-primary); color: var(--fa-panel); font: 700 11px Arial; cursor: pointer; }
+        .fechar { width: 30px; height: 30px; padding: 0; font-size: 18px; }
+        .corpo { overflow: auto; padding: 12px; background: #d8e8c2; }
+        table { width: 100%; border-collapse: collapse; background: #d8e8c2; }
+        th { height: 28px; padding: 4px 7px; text-align: left; font-size: 11px; font-weight: 700; background: #c8dfa9; border: 1px solid #9db879; }
+        td { height: 35px; padding: 4px 7px; font-size: 11px; font-weight: 400; border: 1px solid color-mix(in srgb, #8ca965 45%, transparent); }
+        .rodape { display: flex; justify-content: flex-end; gap: 7px; padding: 7px 12px; border-top: 1px solid #9db879; background: #d8e8c2; }
+        .suave { background: #c8dfa9; color: var(--fa-text); border: 1px solid #9db879; }
+        .erro { color: #8a2d22; }
+        @media print { body { padding: 0; background: #fff !important; } .modal { width: 100%; max-height: none; border: 0; border-radius: 0; } header, .rodape { display: none !important; } .corpo { overflow: visible; padding: 0; } }
+    </style>
+</head>
+<body>
+    <section class="modal">
+        <header>
+            <div><h1>Relatório de credenciadores</h1><p>Relação completa dos credenciadores cadastrados.</p></div>
+            <button class="fechar" type="button" aria-label="Fechar">×</button>
+        </header>
+        <main class="corpo">
+            <table>
+                <thead><tr><th>Nome</th><th>E-mail</th><th>Tipo</th><th>Situação</th><th>Criação</th></tr></thead>
+                <tbody id="linhas"><tr><td colspan="5">Carregando relatório…</td></tr></tbody>
+            </table>
+        </main>
+        <footer class="rodape"><button class="suave" id="cancelar" type="button">Fechar</button><button id="imprimir" type="button">Imprimir</button></footer>
+    </section>
+    <script>
+        (() => {
+            const parametros = new URLSearchParams(location.search);
+            document.documentElement.dataset.theme = parametros.get('tema') || 'jotape';
+            const fechar = () => parent.postMessage({ tipo: 'fechar-modal' }, '*');
+            document.querySelector('.fechar').onclick = fechar;
+            document.querySelector('#cancelar').onclick = fechar;
+            document.querySelector('#imprimir').onclick = () => window.print();
+            const corpo = document.querySelector('#linhas');
+            const itens = JSON.parse(sessionStorage.getItem('facilapp-credenciadores-relatorio') || '[]');
+            corpo.replaceChildren(...itens.map((item) => {
+                const linha = document.createElement('tr');
+                [item.nome, item.email, item.tipo, item.situacao, item.criado_em].forEach((valor) => {
+                    const celula = document.createElement('td');
+                    celula.textContent = valor || '';
+                    linha.append(celula);
+                });
+                return linha;
+            }));
+            if (!itens.length) corpo.innerHTML = '<tr><td colspan="5">Nenhum credenciador encontrado.</td></tr>';
+        })();
+    </script>
+    <script>
+        (() => {
+            const modal = document.querySelector('.modal');
+            const cabecalho = modal.querySelector('header');
+            let ativo = false, origemX = 0, origemY = 0, posicaoX = 0, posicaoY = 0;
+            cabecalho.addEventListener('mousedown', (evento) => {
+                if (evento.target.closest('button')) return;
+                ativo = true;
+                origemX = evento.clientX - posicaoX;
+                origemY = evento.clientY - posicaoY;
+                evento.preventDefault();
+            });
+            window.addEventListener('mousemove', (evento) => {
+                if (!ativo) return;
+                posicaoX = evento.clientX - origemX;
+                posicaoY = evento.clientY - origemY;
+                modal.style.transform = `translate(${posicaoX}px, ${posicaoY}px)`;
+            });
+            window.addEventListener('mouseup', () => ativo = false);
+        })();
+    </script>
+</body>
+</html>
+

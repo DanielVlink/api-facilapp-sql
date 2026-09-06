@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="jotape">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style id="facilapp-tema-critico">html[data-theme="jotape"],html[data-theme="jotape"] body{background:#bfd5a5;color:#171a10}</style>
+<title>Sistemas</title>
+<link rel="stylesheet" href="dependencias/vendor/tabulator.min.css">
+<link rel="stylesheet" href="dependencias/css/cadastros.css">
+<link rel="stylesheet" href="dependencias/themes/TemaFacilApp.css">
+<style>body{padding:5px;font-family:Inter,"Segoe UI",Arial,sans-serif;font-size:14px}.conteudo{display:flex;flex-direction:column;min-height:calc(100vh - 10px);padding:5px}.cabecalho-pagina{margin-bottom:5px;padding:7px;border-radius:7px}.cabecalho-pagina h1{margin:0;font-size:27px}.browse{flex:1;min-height:0;display:grid;grid-template-columns:150px minmax(0,1fr);gap:5px}.acoes-browse{display:grid;grid-template-rows:1fr 3.5fr 1fr 2fr 1fr 1fr;gap:5px}.grupo-acoes{display:flex;flex-direction:column;justify-content:space-evenly;gap:5px;min-height:0;margin:0!important;padding:5px;border-radius:7px}.grupo-acoes button{width:100%;height:38px;min-height:38px;margin:0;padding:0 8px;text-align:left;font-size:11px;font-weight:400}.cartao{display:flex;flex-direction:column;min-height:0;overflow:hidden;padding:0;border-radius:7px}.barra-pesquisa{padding:5px 7px;display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:700}.barra-pesquisa label{display:flex;gap:5px;align-items:center}.barra-pesquisa input{width:280px;height:25px;padding:3px 6px;font:400 11px Arial}.tabulator,.tabulator .tabulator-header,.tabulator .tabulator-row{font-size:11px}.tabulator .tabulator-cell{padding:4px 7px;font-size:11px;font-weight:400}.tabulator .tabulator-row,.tabulator .tabulator-row.tabulator-row-even,.tabulator .tabulator-row.tabulator-row-odd{background:var(--fa-panel)!important}.tabulator .tabulator-row.tabulator-selected,.tabulator .tabulator-row.tabulator-selected .tabulator-cell{background:var(--fa-panel-alt)!important;color:var(--fa-text)!important}.modal{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;background:#171a1066}.modal.aberto{display:flex}.modal-box{width:420px;border:1px solid var(--fa-border);border-radius:7px;background:var(--fa-panel);box-shadow:0 8px 24px #171a1066;overflow:hidden}.modal-head{display:flex;align-items:center;justify-content:space-between;padding:7px;background:var(--fa-panel-alt);font-weight:700}.modal-head button{width:28px;height:25px}.modal-body{display:grid;gap:7px;padding:10px}.modal-body label{display:grid;gap:3px;font-size:11px;font-weight:700}.modal-body input,.modal-body select{height:25px;padding:3px 6px;font-size:11px}.modal-acoes{display:flex;justify-content:flex-end;gap:7px;padding:0 10px 10px}.modal-acoes button{height:25px;padding:3px 9px}</style>
+<style id="tema-modal-sistemas">
+.modal{background:color-mix(in srgb,var(--fa-text) 42%,transparent)}
+html[data-theme] .modal-box{border-color:var(--fa-border);background:var(--fa-panel);color:var(--fa-text);box-shadow:0 8px 24px color-mix(in srgb,var(--fa-text) 35%,transparent)}
+html[data-theme] .modal-head{background:var(--fa-panel-alt);color:var(--fa-text);border-bottom:1px solid var(--fa-border)}
+html[data-theme] .modal-body{background:var(--fa-panel);color:var(--fa-text)}
+.modal-body input,.modal-body select{border:1px solid var(--fa-border);border-radius:5px;background:var(--fa-field-bg);color:var(--fa-text)}
+.modal-acoes{padding-top:7px;border-top:1px solid var(--fa-border);background:var(--fa-panel)}
+.modal-head button,.modal-acoes button{border:1px solid var(--fa-primary);border-radius:5px;background:var(--fa-primary);color:#fff;font:700 11px Arial,sans-serif}
+.modal-head button:hover,.modal-acoes button:hover{background:var(--fa-primary-dark);border-color:var(--fa-primary-dark)}
+#cancelarSistema{background:var(--fa-panel-alt);border-color:var(--fa-border);color:var(--fa-text)}
+#mensagemSistema{min-height:14px;color:var(--fa-muted);font-size:11px}
+</style>
+</head>
+<body>
+<main class="conteudo">
+<header class="cabecalho-pagina">
+<h1>Sistemas</h1>
+</header>
+<section class="browse">
+<div class="acoes-browse">
+<div class="grupo-acoes">
+<button id="atualizar" type="button">↻ Atualizar</button>
+</div>
+<div class="grupo-acoes">
+<button id="novo" type="button">＋ Inserir</button>
+<button id="alterar" type="button" disabled>✎ Alterar</button>
+<button id="excluir" type="button" disabled>⊖ Excluir</button>
+</div>
+<div class="grupo-acoes">
+<button id="imprimir" type="button">▣ Imprimir</button>
+</div>
+<div class="grupo-acoes">
+<button id="csv" type="button">⇩ CSV</button>
+<button id="excel" type="button">▦ Excel</button>
+</div>
+<div class="grupo-acoes">
+<button id="colunas" type="button">☷ Colunas</button>
+</div>
+<div class="grupo-acoes">
+<button id="sair" type="button">↪ Sair</button>
+</div>
+</div>
+<div class="cartao">
+<div class="barra-pesquisa">
+<strong>SISTEMAS</strong>
+<label>Localizar: <input id="pesquisa" type="search" placeholder="Código ou nome">
+</label>
+</div>
+<div id="tabela">
+</div>
+</div>
+</section>
+</main>
+<div id="modalSistema" class="modal" aria-hidden="true">
+<section class="modal-box">
+<header class="modal-head"><span id="tituloSistema">Sistema</span><button id="fecharSistema" type="button">×</button></header>
+<div class="modal-body">
+<label>Código *<input id="codigoSistema" maxlength="40" autocomplete="off"></label>
+<label>Nome *<input id="nomeSistema" maxlength="100" autocomplete="off"></label>
+<label>Situação<select id="ativoSistema"><option value="1">Ativo</option><option value="0">Inativo</option></select></label>
+<div id="mensagemSistema"></div>
+</div>
+<footer class="modal-acoes"><button id="cancelarSistema" type="button">Cancelar</button><button id="salvarSistema" type="button">Gravar</button></footer>
+</section>
+</div>
+<script src="dependencias/vendor/xlsx.full.min.js">
+</script>
+<script src="dependencias/vendor/tabulator.min.js">
+</script>
+<script src="dependencias/themes/TemaFacilApp.js">
+</script>
+<script>(()=>{const api=location.port==='3000'?`http://${location.hostname}:5050`:'';let tabela,editando='';const token=localStorage.getItem('facilapp_access_token')||(()=>{try{return parent.facilAppAccessToken||''}catch{return''}})();const chamar=async(caminho,opcoes={})=>{const headers={'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})};const r=await fetch(api+caminho,{credentials:'same-origin',...opcoes,headers:{...headers,...(opcoes.headers||{})}});const j=await r.json().catch(()=>({}));if(!r.ok||j.ok===false)throw Error(j.erro||`HTTP ${r.status}`);return j};const selecionar=d=>{const ok=d.length===1;alterar.disabled=!ok;excluir.disabled=!ok};const carregar=async()=>{try{const j=await chamar('/api/console/sistemas');tabela?.destroy();tabela=new Tabulator('#tabela',{data:j.sistemas||[],index:'id',height:'100%',layout:'fitColumns',selectableRows:1,pagination:true,paginationSize:25,paginationSizeSelector:[25,50,100],columns:[{title:'Código',field:'id'},{title:'Nome',field:'nome'},{title:'Ativo',field:'ativo',formatter:c=>c.getValue()?'Sim':'Não'},{title:'Criação',field:'criadoEm'},{title:'Atualização',field:'atualizadoEm'}]});tabela.on('rowSelectionChanged',selecionar)}catch(e){document.querySelector('#tabela').textContent=e.message}};const fechar=()=>{modalSistema.classList.remove('aberto');modalSistema.setAttribute('aria-hidden','true')};const abrir=(s=null)=>{editando=s?.id||'';tituloSistema.textContent=editando?'Alterar sistema':'Inserir sistema';codigoSistema.value=s?.id||'';codigoSistema.disabled=!!editando;nomeSistema.value=s?.nome||'';ativoSistema.value=s?.ativo===false?'0':'1';mensagemSistema.textContent='';modalSistema.classList.add('aberto');modalSistema.setAttribute('aria-hidden','false');(editando?nomeSistema:codigoSistema).focus()};atualizar.onclick=carregar;pesquisa.oninput=e=>{const v=e.target.value.trim();v?tabela?.setFilter([{field:'id',type:'like',value:v},{field:'nome',type:'like',value:v}]):tabela?.clearFilter()};imprimir.onclick=()=>window.print();csv.onclick=()=>tabela?.download('csv','sistemas.csv',{bom:true});excel.onclick=()=>tabela?.download('xlsx','sistemas.xlsx',{sheetName:'Sistemas'});colunas.onclick=()=>tabela?.getColumns().forEach(c=>c.isVisible()?c.hide():c.show());sair.onclick=()=>parent.postMessage({tipo:'fechar-modal'},'*');novo.onclick=()=>abrir();alterar.onclick=()=>abrir(tabela?.getSelectedData()[0]);excluir.onclick=async()=>{const s=tabela?.getSelectedData()[0];if(!s||!confirm(`Desativar o sistema ${s.nome||s.id}?`))return;try{await chamar('/api/console/sistemas/'+encodeURIComponent(s.id),{method:'DELETE'});await carregar()}catch(e){alert(e.message)}};fecharSistema.onclick=cancelarSistema.onclick=fechar;salvarSistema.onclick=async()=>{const codigo=codigoSistema.value.trim().toLowerCase(),nome=nomeSistema.value.trim();if(!codigo||!nome){mensagemSistema.textContent='Informe código e nome.';return}try{await chamar('/api/console/sistemas/'+(editando?encodeURIComponent(editando):''),{method:editando?'PUT':'POST',body:JSON.stringify({codigo,nome,ativo:ativoSistema.value==='1'})});fechar();await carregar()}catch(e){mensagemSistema.textContent=e.message}};carregar()})();</script>
+</body>
+</html>

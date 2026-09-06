@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style id="facilapp-tema-critico">html[data-theme="jotape"],html[data-theme="jotape"] body{background:#bfd5a5;color:#171a10}html[data-theme="jotape"] iframe{background:#bfd5a5}</style>
+        <title>Atualizar empresa | FacilApp SQL</title>
+        <style>
+            :root { font-family: Arial, sans-serif; color: #15210f; background: #bcd49f; }
+            * { box-sizing: border-box; }
+            body { min-height: 100vh; margin: 0; padding: 7px; display: flex; align-items: center; justify-content: center; font-size: 11px; overflow: auto; }
+            html.iframe-host, body.iframe-host { background: transparent; }
+            .modal { position: relative; width: min(780px, calc(100vw - 14px)); margin: 0 auto; border: 1px solid #8ca965; border-radius: 12px; overflow: hidden; background: #d8e8c2; box-shadow: 0 2px 0 rgba(57, 76, 26, .2); }
+            .modal-header { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 7px 12px; background: #c8dfa9; border-bottom: 1px solid #9db879; cursor: move; }
+            h1 { margin: 0; font-size: 18px; font-weight: 700; }
+            .modal-header p { margin: 2px 0 0; color: #52633d; }
+            .close { width: 30px; height: 30px; padding: 0; border: 0; border-radius: 6px; background: #56671b; color: #fff; font-size: 18px; font-weight: 700; }
+            form { padding: 8px 12px 10px; }
+            .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px 7px; }
+            label { display: flex; flex-direction: column; gap: 3px; font-weight: 700; }
+            .wide-2 { grid-column: span 2; }
+            .full { grid-column: 1 / -1; }
+            input, select { width: 100%; height: 25px; padding: 3px 6px; border: 1px solid #9db879; border-radius: 5px; background: #eff6e7; color: #15210f; font: inherit; }
+            h2 { grid-column: 1 / -1; margin: 1px 0 0; padding-bottom: 3px; border-bottom: 1px solid #9db879; font-size: 11px; }
+            .input-action { display: grid; grid-template-columns: 1fr auto; gap: 7px; }
+            .mensagem-busca { min-height: 14px; margin-top: 3px; color: #52633d; font-weight: 400; }
+            .mensagem-busca.erro { color: #8a2d22; }
+            button { height: 25px; padding: 3px 9px; border: 0; border-radius: 5px; background: #56671b; color: #fff; font: 700 11px Arial, sans-serif; cursor: pointer; transition: filter .12s ease, transform .05s ease; }
+            button:hover:not(:disabled) { filter: brightness(1.08); }
+            button:active:not(:disabled) { transform: translateY(1px); }
+            button:disabled { cursor: not-allowed; }
+            .logo { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 6px; border: 1px dashed #9db879; background: #eff6e7; }
+            .image-choice { display: inline-flex; align-items: center; height: 25px; padding: 3px 9px; border-radius: 5px; background: #56671b; color: #fff; font: 700 11px Arial, sans-serif; cursor: pointer; }
+            .image-choice input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+            .logo small { font-weight: 400; }
+            .logo-preview { width: 34px; height: 34px; object-fit: contain; border: 1px solid #9db879; border-radius: 4px; background: #d8e8c2; }
+            .actions { display: flex; justify-content: flex-end; gap: 7px; margin-top: 7px; padding-top: 7px; border-top: 1px solid #9db879; }
+            .soft { background: #c8dfa9; color: #425217; border: 1px solid #9db879; }
+            @media (max-width: 640px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .wide-2, .full { grid-column: 1 / -1; } }
+        </style>
+    </head>
+    <body>
+        <section class="modal" aria-label="Atualizar empresa">
+            <header class="modal-header">
+                <div><h1>Atualizar cadastro</h1><p>Informe CPF ou CNPJ para consultar e atualizar os dados.</p></div>
+                <button class="close" type="button" aria-label="Fechar">×</button>
+            </header>
+            <form autocomplete="off">
+                <div class="grid">
+                    <label class="full">CPF/CNPJ *<span class="input-action"><input name="cnpj" required inputmode="numeric" maxlength="18" placeholder="Digite o CPF ou CNPJ"><button id="buscar-cnpj" type="button">Consultar</button></span><small id="mensagem-busca" class="mensagem-busca" aria-live="polite"></small></label>
+                    <h2>Informações básicas</h2>
+                    <label class="wide-2">Razão social *<input name="razaoSocial" required></label>
+                    <label class="wide-2">Nome fantasia<input name="nomeFantasia"></label>
+                    <label>Inscrição estadual<input name="inscricaoEstadual"></label>
+                    <label>Inscrição municipal<input name="inscricaoMunicipal"></label>
+                    <label>E-mail *<input name="email" type="email" required></label>
+                    <label>Telefone<input name="telefone"></label>
+                    <label class="wide-2">Modelo de pagamento<select name="tipoPagamento"><option value="mensalidade">Mensalidade</option><option value="vitalicio">Vitalício</option></select></label>
+                    <h2>Endereço</h2>
+                    <label>CEP *<input name="cep" required></label>
+                    <label>Código IBGE *<input name="codigoIbge" required></label>
+                    <label class="wide-2">Logradouro *<input name="endereco" required></label>
+                    <label>Número *<input name="numero" required></label>
+                    <label>Complemento<input name="complemento"></label>
+                    <label>Bairro *<input name="bairro" required></label>
+                    <label>Cidade *<input name="cidade" required></label>
+                    <label>UF *<input name="uf" maxlength="2" required></label>
+                    <h2>Logo da empresa</h2>
+                    <div class="logo"><label id="escolher-imagem" class="image-choice">Escolher imagem<input id="arquivo-logo" type="file" accept="image/png,image/jpeg,image/webp"></label><img id="logo-preview" class="logo-preview" alt="Prévia do logotipo" hidden><small>PNG, JPG ou WebP. A logo será apresentada nas telas da empresa.</small></div>
+                </div>
+                <div class="actions"><button class="soft" type="button">Cancelar</button><button type="submit">Atualizar empresa</button></div>
+            </form>
+        </section>
+        <script>
+            (() => {
+                if (window.parent !== window) {
+                    document.documentElement.classList.add("iframe-host");
+                    document.body.classList.add("iframe-host");
+                }
+                const modal = document.querySelector(".modal");
+                const cabecalho = document.querySelector(".modal-header");
+                const fechar = document.querySelector(".close");
+                const cancelar = document.querySelector(".soft");
+                const campoCnpj = document.querySelector('[name="cnpj"]');
+                const botaoBuscarCnpj = document.querySelector("#buscar-cnpj");
+                const mensagemBusca = document.querySelector("#mensagem-busca");
+                const arquivoLogo = document.querySelector("#arquivo-logo");
+                const logoPreview = document.querySelector("#logo-preview");
+                const formulario = document.querySelector("form");
+                const botaoSalvar = formulario?.querySelector('button[type="submit"]');
+                let logoDataUrl = "";
+                let retornoCpfCompleto = null;
+                let consultaCpfAtiva = false;
+
+                const carregarStatusCpf = async () => {
+                    try {
+                        const resposta = await fetch(`${obterApiBase()}/api/console/pessoas/consulta-cpf/status`, {
+                            headers: { Accept: "application/json" },
+                        });
+                        const conteudo = await lerRespostaJson(resposta);
+                        consultaCpfAtiva = resposta.ok && conteudo.ativo === true;
+                    } catch {
+                        consultaCpfAtiva = false;
+                    }
+                };
+
+                const camposDaEmpresa = [
+                    "cnpj", "razaoSocial", "nomeFantasia", "inscricaoEstadual", "inscricaoMunicipal",
+                    "email", "telefone", "cep", "codigoIbge", "uf", "cidade", "endereco", "numero",
+                    "complemento", "bairro", "tipoPagamento",
+                ];
+
+                const normalizarValor = (nome, valor) => {
+                    const texto = String(valor ?? "").trim();
+                    return nome === "cnpj" ? texto.replace(/\D/g, "") : texto.toLocaleLowerCase("pt-BR");
+                };
+
+                const aplicarSomenteDiferencas = (dados) => {
+                    let quantidadeAlterada = 0;
+                    camposDaEmpresa.forEach((nome) => {
+                        const valorRecebido = dados?.[nome];
+                        if (valorRecebido === null || valorRecebido === undefined || String(valorRecebido).trim() === "") return;
+                        const campo = document.querySelector(`[name="${nome}"]`);
+                        if (!campo || normalizarValor(nome, campo.value) === normalizarValor(nome, valorRecebido)) return;
+                        campo.value = String(valorRecebido).trim();
+                        campo.setAttribute("value", campo.value);
+                        quantidadeAlterada += 1;
+                    });
+                    return quantidadeAlterada;
+                };
+
+                const obterApiBase = () => {
+                    const parametrosApi = new URLSearchParams(window.location.search);
+                    // A porta 3000 serve apenas os modelos; as consultas de teste
+                    // devem ir para a API SQL em 5000, não para a ponte HTML.
+                    return (parametrosApi.get("api") || (window.location.port === "3000"
+                        ? "http://127.0.0.1:5000"
+                        : window.location.origin)).replace(/\/$/, "");
+                };
+
+                const lerRespostaJson = async (resposta) => {
+                    try {
+                        return await resposta.json();
+                    } catch {
+                        throw new Error(
+                            `A API retornou uma resposta inválida (HTTP ${resposta.status}). ` +
+                            "Confira se a URL da API de teste é http://127.0.0.1:5000.",
+                        );
+                    }
+                };
+
+                const fecharModal = () => {
+                    modal.hidden = true;
+                    if (window.parent !== window) {
+                        window.parent.postMessage({ tipo: "fechar-modal" }, "*");
+                        return;
+                    }
+                    if (window.history.length > 1) {
+                        window.history.back();
+                    } else {
+                        window.location.href = "Empresas.html";
+                    }
+                };
+
+                const preencherCampos = (valores) => {
+                    Object.entries(valores).forEach(([nome, valor]) => {
+                        const campo = document.querySelector(`[name="${nome}"]`);
+                        if (campo && valor !== null && valor !== undefined && valor !== "") {
+                            campo.value = String(valor);
+                            campo.setAttribute("value", String(valor));
+                        }
+                    });
+                };
+
+                const buscarCnpj = async () => {
+                    const documento = (campoCnpj?.value || "").replace(/\D/g, "");
+                    if (documento.length !== 11 && documento.length !== 14) {
+                        mensagemBusca.textContent = "Informe um CPF com 11 dígitos ou CNPJ com 14 dígitos.";
+                        mensagemBusca.classList.add("erro");
+                        return;
+                    }
+                    const tipo = documento.length === 11 ? "cpf" : "cnpj";
+                    if (tipo === "cpf" && !consultaCpfAtiva) {
+                        mensagemBusca.textContent = "A consulta de CPF está desativada na API.";
+                        mensagemBusca.classList.add("erro");
+                        return;
+                    }
+                    const textoOriginal = botaoBuscarCnpj.textContent;
+                    botaoBuscarCnpj.disabled = true;
+                    botaoBuscarCnpj.textContent = "Consultando...";
+                    mensagemBusca.textContent = "";
+                    mensagemBusca.classList.remove("erro");
+                    try {
+                        const endpointConsulta = tipo === "cpf"
+                            ? `/api/console/pessoas/consultar-cpf/${documento}`
+                            : `/api/console/empresas/consultar-cnpj/${documento}`;
+                        const resposta = await fetch(`${obterApiBase()}${endpointConsulta}`, {
+                            headers: { Accept: "application/json" },
+                        });
+                        const conteudo = await lerRespostaJson(resposta);
+                        if (!resposta.ok) throw new Error(conteudo.erro || `${tipo.toUpperCase()} não encontrado.`);
+                        retornoCpfCompleto = tipo === "cpf" ? (conteudo.retorno || null) : null;
+                        const quantidadeAlterada = aplicarSomenteDiferencas(conteudo.pessoa || conteudo.empresa || conteudo);
+                        mensagemBusca.textContent = quantidadeAlterada
+                            ? `${tipo.toUpperCase()} consultado. ${quantidadeAlterada} campo(s) atualizado(s).`
+                            : `${tipo.toUpperCase()} consultado. Os dados da tela já estavam iguais.`;
+                    } catch (erro) {
+                        mensagemBusca.textContent = erro.message || "Falha ao consultar CPF/CNPJ.";
+                        mensagemBusca.classList.add("erro");
+                    } finally {
+                        botaoBuscarCnpj.disabled = false;
+                        botaoBuscarCnpj.textContent = textoOriginal;
+                    }
+                };
+                botaoBuscarCnpj.addEventListener("click", buscarCnpj);
+                carregarStatusCpf();
+
+                arquivoLogo.addEventListener("change", () => {
+                    const arquivo = arquivoLogo.files?.[0];
+                    if (!arquivo) return;
+                    if (!/^image\/(png|jpeg|webp)$/.test(arquivo.type)) {
+                        mensagemBusca.textContent = "Escolha uma imagem PNG, JPG ou WebP.";
+                        mensagemBusca.classList.add("erro");
+                        arquivoLogo.value = "";
+                        return;
+                    }
+                    if (arquivo.size > 1024 * 1024) {
+                        mensagemBusca.textContent = "A imagem deve ter no máximo 1 MB.";
+                        mensagemBusca.classList.add("erro");
+                        arquivoLogo.value = "";
+                        return;
+                    }
+                    const leitor = new FileReader();
+                    leitor.addEventListener("load", () => {
+                        logoDataUrl = String(leitor.result || "");
+                        logoPreview.src = logoDataUrl;
+                        logoPreview.hidden = false;
+                        mensagemBusca.textContent = "Imagem selecionada.";
+                        mensagemBusca.classList.remove("erro");
+                    });
+                    leitor.readAsDataURL(arquivo);
+                });
+
+                const carregarLogoExistente = async () => {
+                    const cnpj = (campoCnpj?.value || "").replace(/\D/g, "");
+                    if (cnpj.length !== 11 && cnpj.length !== 14) return;
+                    try {
+                        const resposta = await fetch(`${obterApiBase()}/api/console/empresas/${cnpj}/logo`, {
+                            headers: { Accept: "image/*" },
+                        });
+                        if (!resposta.ok) return;
+                        const blob = await resposta.blob();
+                        const leitor = new FileReader();
+                        leitor.addEventListener("load", () => {
+                            logoDataUrl = String(leitor.result || "");
+                            logoPreview.src = logoDataUrl;
+                            logoPreview.hidden = false;
+                        });
+                        leitor.readAsDataURL(blob);
+                    } catch {
+                        // A ausência da logo não impede a atualização dos demais dados.
+                    }
+                };
+                formulario.addEventListener("submit", async (evento) => {
+                    evento.preventDefault();
+                    if (!formulario.checkValidity()) {
+                        formulario.reportValidity();
+                        mensagemBusca.textContent = "Preencha os campos obrigatórios antes de atualizar.";
+                        mensagemBusca.classList.add("erro");
+                        return;
+                    }
+                    const cnpj = (campoCnpj?.value || "").replace(/\D/g, "");
+                    const dados = Object.fromEntries(camposDaEmpresa.map((campo) => [
+                        campo,
+                        document.querySelector(`[name="${campo}"]`)?.value?.trim() || "",
+                    ]));
+                    dados.tipoPessoa = cnpj.length === 11 ? "fisica" : "juridica";
+                    if (cnpj.length === 11 && retornoCpfCompleto) {
+                        const resultado = retornoCpfCompleto.result || retornoCpfCompleto;
+                        dados.genero = resultado.genero ?? "";
+                        dados.dataNascimento = resultado.dataNascimento ?? resultado.dataDeNascimento ?? "";
+                        dados.nomeMae = resultado.nomeMae ?? resultado.nomeDaMae ?? "";
+                        const idade = resultado.idade ?? resultado.anos;
+                        dados.idade = Number.isFinite(Number(idade)) ? Number(idade) : null;
+                        dados.zodiaco = resultado.signo ?? resultado.zodiaco ?? "";
+                        dados.telefonesJson = JSON.stringify(resultado.telefones ?? resultado.listaTelefones ?? []);
+                        dados.enderecosJson = JSON.stringify(resultado.enderecos ?? resultado.listaEnderecos ?? []);
+                        dados.emailsJson = JSON.stringify(resultado.emails ?? resultado.listaEmails ?? []);
+                        dados.salarioEstimado = resultado.rendaEstimada ?? resultado.salarioEstimado ?? "";
+                        dados.statusCadastral = resultado.statusCadastral ?? "";
+                        dados.dataStatusCadastral = resultado.dataStatusCadastral ?? "";
+                        dados.ultimaAtualizacaoFonte = resultado.lastUpdate ?? "";
+                        dados.consultaJson = JSON.stringify(retornoCpfCompleto);
+                    }
+                    if (logoDataUrl.startsWith("data:image/")) dados.logoData = logoDataUrl;
+                    const textoOriginal = botaoSalvar?.textContent || "Atualizar empresa";
+                    if (botaoSalvar) {
+                        botaoSalvar.disabled = true;
+                        botaoSalvar.textContent = "Atualizando...";
+                    }
+                    mensagemBusca.textContent = "";
+                    mensagemBusca.classList.remove("erro");
+                    try {
+                        const resposta = await fetch(`${obterApiBase()}/api/console/empresas/${cnpj}`, {
+                            method: "PUT",
+                            headers: {
+                                Accept: "application/json",
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify(dados),
+                        });
+                        const conteudo = await lerRespostaJson(resposta);
+                        if (!resposta.ok) throw new Error(conteudo.erro || "A API recusou a atualização.");
+                        mensagemBusca.textContent = "Empresa atualizada com sucesso na API SQL.";
+                        window.setTimeout(fecharModal, 250);
+                    } catch (erro) {
+                        mensagemBusca.textContent = erro.message || "Falha ao atualizar a empresa.";
+                        mensagemBusca.classList.add("erro");
+                    } finally {
+                        if (botaoSalvar) {
+                            botaoSalvar.disabled = false;
+                            botaoSalvar.textContent = textoOriginal;
+                        }
+                    }
+                });
+
+                const parametros = new URLSearchParams(window.location.search);
+                preencherCampos(Object.fromEntries(camposDaEmpresa.map((campo) => [campo, parametros.get(campo)])));
+                const carregarDadosEmpresa = async () => {
+                    const cnpj = (campoCnpj?.value || "").replace(/\D/g, "");
+                    if (cnpj.length !== 11 && cnpj.length !== 14) return;
+                    try {
+                        const resposta = await fetch(`${obterApiBase()}/api/console/empresas/${cnpj}`, {
+                            headers: { Accept: "application/json" },
+                        });
+                        const conteudo = await lerRespostaJson(resposta);
+                        if (resposta.ok) preencherCampos(conteudo.empresa || conteudo);
+                    } catch {
+                        // O modelo continua utilizável mesmo sem a API disponível.
+                    }
+                };
+                const preencherPelosParametros = () => preencherCampos(
+                    Object.fromEntries(camposDaEmpresa.map((campo) => [campo, parametros.get(campo)])),
+                );
+                window.setTimeout(preencherPelosParametros, 0);
+                window.setTimeout(preencherPelosParametros, 250);
+                window.setTimeout(carregarDadosEmpresa, 0);
+                window.setTimeout(carregarLogoExistente, 0);
+
+                window.addEventListener("message", (evento) => {
+                    if (evento.data?.tipo !== "preencher-update") return;
+                    const empresa = evento.data.empresa || {};
+                    preencherCampos({
+                        ...Object.fromEntries(camposDaEmpresa.map((campo) => [campo, empresa[campo]])),
+                    });
+                });
+                let arrastando = false;
+                let deslocamentoX = 0;
+                let deslocamentoY = 0;
+
+                cabecalho.addEventListener("pointerdown", (evento) => {
+                    const retangulo = modal.getBoundingClientRect();
+                    arrastando = true;
+                    deslocamentoX = evento.clientX - retangulo.left;
+                    deslocamentoY = evento.clientY - retangulo.top;
+                    modal.style.position = "fixed";
+                    modal.style.margin = "0";
+                    modal.style.left = `${retangulo.left}px`;
+                    modal.style.top = `${retangulo.top}px`;
+                    cabecalho.setPointerCapture(evento.pointerId);
+                });
+                cabecalho.addEventListener("pointermove", (evento) => {
+                    if (!arrastando) return;
+                    const limiteEsquerdo = Math.max(7, window.innerWidth - modal.offsetWidth - 7);
+                    const limiteSuperior = Math.max(7, window.innerHeight - modal.offsetHeight - 7);
+                    const esquerda = Math.min(limiteEsquerdo, Math.max(7, evento.clientX - deslocamentoX));
+                    const superior = Math.min(limiteSuperior, Math.max(7, evento.clientY - deslocamentoY));
+                    modal.style.left = `${esquerda}px`;
+                    modal.style.top = `${superior}px`;
+                });
+                cabecalho.addEventListener("pointerup", () => { arrastando = false; });
+                // Os comandos X e Cancelar devem ter exatamente o mesmo comportamento.
+                // Impedimos que o arraste do cabeçalho capture o clique do X.
+                fechar.addEventListener("pointerdown", (evento) => evento.stopPropagation());
+                cancelar.addEventListener("pointerdown", (evento) => evento.stopPropagation());
+                fechar.addEventListener("click", fecharModal);
+                cancelar.addEventListener("click", fecharModal);
+            })();
+        </script>
+    </body>
+</html>
+

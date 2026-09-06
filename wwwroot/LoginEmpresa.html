@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="jotape">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style id="facilapp-tema-critico">html[data-theme="jotape"],html[data-theme="jotape"] body{background:#bfd5a5;color:#171a10}html[data-theme="jotape"] iframe{background:#bfd5a5}</style>
+    <title>Login da empresa | FacilApp SQL</title>
+    <link rel="stylesheet" href="dependencias/vendor/tabulator.min.css">
+    <link rel="stylesheet" href="dependencias/css/cadastros.css">
+    <link rel="stylesheet" href="dependencias/themes/TemaFacilApp.css">
+    <style>
+        :root { font-family: Arial, sans-serif; background: transparent; }
+        * { box-sizing: border-box; }
+        html, body { background: transparent; }
+        body { min-height: 100vh; margin: 0; padding: 7px; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+        /* O browse ocupa toda a altura util: o Tabulator pagina 20 logins, sem criar uma tela curta. */
+        /* Browse filho: mantém o mesmo padrão visual, mas com card menor que o browse principal. */
+        /* Browse filho: menor que o iframe de Empresas para preservar a margem visível ao redor. */
+        .modal { display:flex; flex-direction:column; width:min(760px, calc(100vw - 28px)); height:min(520px, calc(100vh - 28px)); margin:0; border:1px solid var(--fa-border); border-radius:12px; overflow:hidden; background:var(--fa-background); box-shadow:0 2px 0 var(--fa-border); }
+        .cabecalho { display:flex; align-items:center; justify-content:space-between; min-height:48px; padding:7px 12px; background:var(--fa-panel-alt); border-bottom:1px solid var(--fa-border); cursor:move; }
+        h1 { margin:0; font-size:18px; } .subtitulo { margin:2px 0 0; color:var(--fa-muted); }
+        button { height:25px; padding:3px 9px; border:0; border-radius:5px; background:var(--fa-primary); color:var(--fa-panel); font:700 11px Arial,sans-serif; cursor:pointer; }
+        button:hover { filter:brightness(1.08); } button:active { transform:translateY(1px); }
+        .fechar { width:30px; height:30px; padding:0; font-size:18px; }
+        .conteudo { display:flex; flex:1 1 auto; min-height:0; flex-direction:column; padding:8px 12px 10px; }
+        .barra { display:flex; justify-content:flex-end; margin-bottom:7px; }
+        #tabela-logins { flex:1 1 auto; min-height:0; border:1px solid var(--fa-border); background:var(--fa-panel); }
+        .tabulator { font-size:11px; background:var(--fa-panel); border:0; }
+        .tabulator .tabulator-header { height:28px; background:var(--fa-panel); border-bottom:1px solid var(--fa-border); }
+        .tabulator .tabulator-col { background:var(--fa-panel); border-right:1px solid var(--fa-border); }
+        .tabulator .tabulator-col-title { font-size:11px; font-weight:700; }
+        .tabulator .tabulator-row { min-height:28px; background:var(--fa-panel); border-bottom:1px solid color-mix(in srgb,var(--fa-border) 38%,transparent); }
+        .tabulator .tabulator-cell { height:28px; padding:3px 7px; overflow:hidden; font-size:11px; font-weight:400; line-height:20px; text-overflow:ellipsis; white-space:nowrap; border-right:1px solid color-mix(in srgb,var(--fa-border) 38%,transparent); }
+        .tabulator .tabulator-footer { background:var(--fa-panel-alt); border-top:1px solid var(--fa-border); }
+        .tabulator .tabulator-row { background:var(--fa-panel); }
+        .tabulator .tabulator-row:nth-child(even),
+        .tabulator .tabulator-row.tabulator-row-even,
+        .tabulator .tabulator-row.tabulator-row-odd { background:var(--fa-panel) !important; }
+        .tabulator .tabulator-row.tabulator-selected,
+        .tabulator .tabulator-row.tabulator-selected:nth-child(even),
+        .tabulator .tabulator-row.tabulator-row-even.tabulator-selected,
+        .tabulator .tabulator-row.tabulator-row-odd.tabulator-selected { background:var(--fa-panel-alt) !important; color:var(--fa-text); }
+        .tabulator .tabulator-row.tabulator-selected .tabulator-cell { background:var(--fa-panel-alt) !important; color:inherit; }
+        .modal-overlay { position:fixed; inset:0; z-index:20; display:none; align-items:center; justify-content:center; padding:7px; background:rgba(20,32,14,.62); }
+        .modal-overlay.aberto { display:flex; }
+        .modal-overlay iframe { position:absolute; inset:0; width:100%; height:100%; border:0; background:transparent; }
+        .column-picker { position:fixed; inset:0; z-index:25; display:none; align-items:center; justify-content:center; padding:7px; background:rgba(20,32,14,.62); }
+        .column-picker.aberto { display:flex; }
+        .column-picker-card { width:min(390px,calc(100vw - 28px)); overflow:hidden; border:1px solid var(--fa-border); border-radius:12px; background:var(--fa-panel); box-shadow:0 8px 24px #171a1066; }
+        .column-picker-card header { display:flex; align-items:center; justify-content:space-between; min-height:42px; padding:7px 12px; background:var(--fa-panel-alt); border-bottom:1px solid var(--fa-border); font-size:16px; font-weight:700; }
+        .column-picker-card header button { width:30px; height:30px; padding:0; font-size:18px; }
+        .column-options { display:grid; gap:7px; padding:12px; }
+        .column-options label { display:flex; align-items:center; gap:7px; cursor:pointer; }
+        .column-picker-actions { display:flex; justify-content:flex-end; gap:7px; padding:7px 12px 12px; border-top:1px solid var(--fa-border); }
+        html[data-theme="jotape"], html[data-theme="jotape"] body { background:transparent; }
+        .rodape { display:flex; justify-content:flex-end; gap:7px; margin-top:7px; padding-top:7px; border-top:1px solid var(--fa-border); }
+        .suave { background:var(--fa-panel-alt); color:var(--fa-primary-dark); border:1px solid var(--fa-border); }
+        /* O conteúdo ocupa só a área útil do modal; evita deslocar a tabela para baixo. */
+        .modal > .conteudo { height:auto; min-height:0; flex:1 1 auto; padding:7px; }
+        .cabecalho-pagina { display:flex; align-items:center; justify-content:space-between; min-height:48px; margin-bottom:7px; padding:7px; background:var(--fa-panel); border:1px solid var(--fa-border); border-radius:7px; cursor:move; }
+        .cabecalho-pagina h1 { font-size:20px; font-weight:700; }
+        .cabecalho-pagina p { margin:2px 0 0; color:var(--fa-muted); font-size:9.17px; font-weight:400; }
+        .browse { display:grid; flex:1 1 auto; grid-template-columns:150px minmax(0,1fr); gap:5px; min-height:0; }
+        .acoes-browse { display:grid; grid-template-rows:1fr 3.5fr 1fr 2fr 1fr 1fr; gap:5px; min-height:0; }
+        .grupo-acoes { display:flex; flex-direction:column; justify-content:space-evenly; gap:5px; min-height:0; padding:5px; border-radius:7px; }
+        .grupo-acoes button { width:100%; min-height:38px; height:38px; padding:0 8px; text-align:left; }
+        .cartao { display:flex; flex-direction:column; min-height:0; overflow:hidden; padding:0; border:1px solid var(--fa-border); border-radius:7px; background:var(--fa-panel); }
+        .barra-pesquisa { display:flex; align-items:center; justify-content:space-between; min-height:38px; padding:5px 7px; background:var(--fa-panel-alt); border-bottom:1px solid var(--fa-border); font-size:11px; font-weight:700; }
+        .barra-pesquisa label { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; }
+        .barra-pesquisa input { width:280px; height:25px; padding:3px 6px; border:1px solid var(--fa-border); border-radius:5px; background:var(--fa-field-bg); font-size:11px; }
+        #tabela-logins { flex:1 1 auto; min-height:0; border:0; }
+        .tabulator { background:var(--fa-panel); border:0; font-size:11px; }
+        .tabulator .tabulator-header { height:28px; background:var(--fa-panel); border-bottom:1px solid var(--fa-border); }
+        .tabulator .tabulator-col { background:var(--fa-panel); border-right:1px solid var(--fa-border); }
+        .tabulator .tabulator-col-title { font-size:11px; font-weight:700; }
+        .tabulator .tabulator-row { min-height:28px; background:var(--fa-panel); border-bottom:1px solid color-mix(in srgb,var(--fa-border) 38%,transparent) !important; }
+        .tabulator .tabulator-cell { height:28px; padding:3px 7px; overflow:hidden; border-right:1px solid color-mix(in srgb,var(--fa-border) 38%,transparent) !important; border-bottom:0 !important; font-size:11px; font-weight:400; line-height:20px; text-overflow:ellipsis; white-space:nowrap; }
+        .tabulator .tabulator-footer { background:var(--fa-panel-alt); border-top:1px solid var(--fa-border); }
+    </style>
+</head>
+<body>
+    <section class="modal" aria-label="Login da empresa">
+        <main class="conteudo">
+            <header class="cabecalho cabecalho-pagina"><div><h1>Login da empresa</h1><p class="subtitulo">Usuários de acesso vinculados à empresa selecionada.</p></div><button class="fechar" type="button" aria-label="Fechar">×</button></header>
+            <section class="browse" aria-label="Consulta de logins da empresa">
+                <div class="acoes-browse">
+                    <div class="grupo-acoes"><button id="atualizar" type="button">↻ Atualizar</button></div>
+                    <div class="grupo-acoes"><button id="novo-login" type="button">＋ Inserir</button><button id="alterar" type="button" disabled>✎ Alterar</button><button id="excluir" type="button" disabled>⊖ Excluir</button></div>
+                    <div class="grupo-acoes"><button id="imprimir" type="button">▣ Imprimir</button></div>
+                    <div class="grupo-acoes"><button id="csv" type="button">⇩ CSV</button><button id="excel" type="button">▦ Excel</button></div>
+                    <div class="grupo-acoes"><button id="colunas" type="button">☷ Colunas</button></div>
+                    <div class="grupo-acoes"><button id="sair" type="button">↪ Sair</button></div>
+                </div>
+                <div class="cartao">
+                    <div class="barra-pesquisa"><strong>LOGINS DA EMPRESA</strong><label>Localizar: <input id="pesquisa" type="search" placeholder="nome ou usuário"></label></div>
+                    <div id="tabela-logins" aria-label="Logins cadastrados da empresa"></div>
+                </div>
+            </section>
+        </main>
+    </section>
+    <div id="editor-overlay" class="modal-overlay" aria-hidden="true"><iframe id="editor-frame" title="Cadastro de login"></iframe></div>
+    <div id="columns-overlay" class="column-picker" aria-hidden="true"><section class="column-picker-card"><header><span>Colunas visíveis</span><button id="columns-close" type="button" aria-label="Fechar">×</button></header><div class="column-options"><label><input type="checkbox" data-column="nome" checked>Nome</label><label><input type="checkbox" data-column="usuario" checked>Usuário</label><label><input type="checkbox" data-column="credencialNome" checked>Credencial SQL</label><label><input type="checkbox" data-column="sistemaId" checked>Sistema</label></div><div class="column-picker-actions"><button id="columns-cancel" class="suave" type="button">Cancelar</button><button id="columns-apply" type="button">Aplicar</button></div></section></div>
+    <script src="dependencias/vendor/xlsx.full.min.js"></script>
+    <script src="dependencias/vendor/tabulator.min.js"></script>
+    <script>
+        (() => {
+            const fechar = () => { if (window.parent !== window) window.parent.postMessage({ tipo: "fechar-modal" }, "*"); else history.back(); };
+            document.querySelector(".fechar").addEventListener("click", fechar);
+            document.querySelector("#sair").addEventListener("click", fechar);
+            const parametros = new URLSearchParams(window.location.search);
+            const apiBase = parametros.get("api") || (window.location.port === "3000" ? `http://${location.hostname}:5050` : "");
+            const accessToken = localStorage.getItem("facilapp_access_token") || (() => { try { return window.parent?.facilAppAccessToken || ""; } catch { return ""; } })();
+            const authHeaders = () => accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
+            const empresaId = parametros.get("empresaId") || "";
+            const empresa = parametros.get("empresa") || "";
+            const cnpj = parametros.get("cnpj") || "";
+            const overlayEditor = document.querySelector("#editor-overlay");
+            const frameEditor = document.querySelector("#editor-frame");
+            const abrirEditor = dados => {
+                const url = new URL("UpdateLoginEmpresa.html", window.location.href);
+                url.searchParams.set("empresaId", empresaId);
+                url.searchParams.set("api", apiBase);
+                if (empresa) url.searchParams.set("empresa", empresa);
+                if (cnpj) url.searchParams.set("cnpj", cnpj);
+                if (dados?.id) url.searchParams.set("usuarioId", dados.id);
+                if (dados?.nome) url.searchParams.set("nome", dados.nome);
+                if (dados?.usuario) url.searchParams.set("usuario", dados.usuario);
+                if (dados?.sistemaId) url.searchParams.set("sistemaId", dados.sistemaId);
+                if (dados?.clientId) url.searchParams.set("clientId", dados.clientId);
+                overlayEditor.classList.add("aberto");
+                overlayEditor.setAttribute("aria-hidden", "false");
+                frameEditor.src = url.href;
+            };
+            const fecharEditor = () => {
+                overlayEditor.classList.remove("aberto");
+                overlayEditor.setAttribute("aria-hidden", "true");
+                frameEditor.removeAttribute("src");
+            };
+            const abrirRelatorio = () => {
+                const url = new URL("RptLoginEmpresa.html", window.location.href);
+                url.searchParams.set("empresaId", empresaId);
+                url.searchParams.set("api", apiBase);
+                if (empresa) url.searchParams.set("empresa", empresa);
+                frameEditor.title = "Relatório de logins da empresa";
+                overlayEditor.classList.add("aberto");
+                overlayEditor.setAttribute("aria-hidden", "false");
+                frameEditor.src = url.href;
+            };
+            document.querySelector("#novo-login").addEventListener("click", () => abrirEditor());
+            const tabela = new Tabulator("#tabela-logins", {
+                height: "100%",
+                layout: "fitColumns",
+                // O browse filho segue a grade padrão de Empresas: os dados ficam
+                // somente na linha da tabela, sem painel complementar por registro.
+                responsiveLayout: false,
+                // O browse usa seleção única: ao escolher outro registro, a seleção
+                // anterior é removida e os comandos atuam somente no registro atual.
+                selectableRows: 1,
+                pagination: true,
+                paginationSize: 20,
+                paginationSizeSelector: [20, 50, 100],
+                locale: true,
+                langs: { "default": { pagination: { first: "Primeira", last: "Última", prev: "Anterior", next: "Próxima", page_size: "Linhas por página" } } },
+                placeholder: "Nenhum login cadastrado para esta empresa.",
+                columns: [
+                    { title: "Nome", field: "nome", minWidth: 105, widthGrow: 2, hozAlign: "center", headerHozAlign: "center" },
+                    { title: "Usuário", field: "usuario", minWidth: 105, widthGrow: 2, hozAlign: "center", headerHozAlign: "center" },
+                    { title: "Credencial SQL", field: "credencialNome", minWidth: 120, widthGrow: 2, hozAlign: "center", headerHozAlign: "center" },
+                    { title: "Sistema", field: "sistemaId", minWidth: 105, widthGrow: 2, hozAlign: "center", headerHozAlign: "center" },
+                ],
+            });
+            const carregar = () => {
+                if (!empresaId) { tabela.setData([]); return; }
+                fetch(`${apiBase}/api/console/empresas/${encodeURIComponent(empresaId)}/usuarios`, { headers: authHeaders() })
+                    .then(resposta => resposta.ok ? resposta.json() : { usuarios: [] })
+                    .then(dados => tabela.setData(dados.usuarios || []))
+                    .catch(() => tabela.setData([]));
+            };
+            document.querySelector("#atualizar").addEventListener("click", carregar);
+            document.querySelector("#pesquisa").addEventListener("input", evento => {
+                const texto = evento.target.value.trim();
+                if (texto) tabela.setFilter([{ field: "nome", type: "like", value: texto }, { field: "usuario", type: "like", value: texto }]);
+                else tabela.clearFilter();
+            });
+            tabela.on("rowSelectionChanged", dados => {
+                document.querySelector("#alterar").disabled = dados.length !== 1;
+                document.querySelector("#excluir").disabled = dados.length !== 1;
+            });
+            document.querySelector("#alterar").addEventListener("click", () => {
+                const selecionado = tabela.getSelectedData()[0];
+                if (selecionado) abrirEditor(selecionado);
+            });
+            document.querySelector("#excluir").addEventListener("click", async () => {
+                const selecionado = tabela.getSelectedData()[0];
+                if (!selecionado || !empresaId) return;
+                if (!window.confirm(`Excluir definitivamente o login ${selecionado.usuario}?`)) return;
+                const resposta = await fetch(`${apiBase}/api/console/usuarios/${encodeURIComponent(selecionado.id)}`, { method: "DELETE", headers: authHeaders() });
+                if (!resposta.ok) {
+                    const dados = await resposta.json().catch(() => ({}));
+                    window.alert(dados.erro || "Não foi possível excluir o login.");
+                    return;
+                }
+                carregar();
+            });
+            const colunasOverlay = document.querySelector("#columns-overlay");
+            const fecharColunas = () => { colunasOverlay.classList.remove("aberto"); colunasOverlay.setAttribute("aria-hidden", "true"); };
+            document.querySelector("#colunas").addEventListener("click", () => {
+                document.querySelectorAll("#columns-overlay [data-column]").forEach(campo => {
+                    const coluna = tabela.getColumn(campo.dataset.column);
+                    campo.checked = coluna?.isVisible() !== false;
+                });
+                colunasOverlay.classList.add("aberto");
+                colunasOverlay.setAttribute("aria-hidden", "false");
+            });
+            document.querySelector("#columns-close").addEventListener("click", fecharColunas);
+            document.querySelector("#columns-cancel").addEventListener("click", fecharColunas);
+            document.querySelector("#columns-apply").addEventListener("click", () => {
+                document.querySelectorAll("#columns-overlay [data-column]").forEach(campo => {
+                    const coluna = tabela.getColumn(campo.dataset.column);
+                    if (coluna) campo.checked ? coluna.show() : coluna.hide();
+                });
+                fecharColunas();
+            });
+            document.querySelector("#imprimir").addEventListener("click", abrirRelatorio);
+            document.querySelector("#csv").addEventListener("click", () => tabela.download("csv", "logins.csv", { bom: true }));
+            document.querySelector("#excel").addEventListener("click", () => tabela.download("xlsx", "logins.xlsx", { sheetName: "Logins" }));
+            if (empresaId) {
+                fetch(`${apiBase}/api/console/empresas/${encodeURIComponent(empresaId)}/usuarios`, { headers: authHeaders() })
+                    .then(resposta => resposta.ok ? resposta.json() : { usuarios: [] })
+                    .then(dados => tabela.setData(dados.usuarios || []))
+                .catch(() => tabela.setData([]));
+            }
+            window.addEventListener("message", evento => {
+                if (evento.data?.tipo === "login-gravado") { fecharEditor(); carregar(); }
+                if (evento.data?.tipo === "fechar-modal" && overlayEditor.classList.contains("aberto")) fecharEditor();
+            });
+            let movendo = false, inicioX = 0, inicioY = 0, origemX = 0, origemY = 0;
+            const modal = document.querySelector(".modal"); const cabecalho = document.querySelector(".cabecalho");
+            cabecalho.addEventListener("pointerdown", (e) => { if (e.target.closest("button")) return; movendo=true; inicioX=e.clientX; inicioY=e.clientY; const r=modal.getBoundingClientRect(); origemX=r.left; origemY=r.top; modal.style.margin="0"; modal.style.position="fixed"; modal.style.left=origemX+"px"; modal.style.top=origemY+"px"; cabecalho.setPointerCapture(e.pointerId); });
+            cabecalho.addEventListener("pointermove", (e) => { if (movendo) { modal.style.left=(origemX+e.clientX-inicioX)+"px"; modal.style.top=(origemY+e.clientY-inicioY)+"px"; } });
+            cabecalho.addEventListener("pointerup", () => { movendo=false; });
+        })();
+    </script>
+</body>
+</html>
+

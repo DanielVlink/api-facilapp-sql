@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="jotape">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style id="facilapp-tema-critico">html[data-theme="jotape"],html[data-theme="jotape"] body{background:#bfd5a5;color:#171a10}html[data-theme="jotape"] iframe{background:#bfd5a5}</style>
+        <title>Empresas | FacilApp SQL</title>
+        <link rel="stylesheet" href="dependencias/vendor/tabulator.min.css">
+        <link rel="stylesheet" href="dependencias/css/cadastros.css">
+        <link rel="stylesheet" href="dependencias/themes/TemaFacilApp.css">
+        <style>
+            html[data-theme="jotape"] .acoes-browse { display: grid; grid-template-rows: 1fr 3.5fr 1fr 2fr 1fr 1fr; height: 100%; min-height: 0; gap: 5px !important; padding: 0; background: transparent; }
+            html[data-theme="jotape"] .grupo-acoes { display: flex; flex-direction: column; gap: 5px !important; justify-content: space-evenly; min-height: 0; margin: 0 !important; padding: 5px; border-radius: 7px; }
+            html[data-theme="jotape"] .grupo-acoes button { width: 100%; min-height: 38px; height: 38px; margin: 0; padding: 0 8px; text-align: left; }
+            body { padding: 5px; font-family: Inter, "Segoe UI", Arial, sans-serif; font-size: 14px; }
+            .conteudo { display: flex; flex-direction: column; min-height: calc(100vh - 10px); padding: 5px; }
+            .cabecalho-pagina { margin-bottom: 5px; padding: 7px; border-radius: 7px; }
+            .cabecalho-pagina h1 { font-size: 27px; font-weight: 700; }
+            .cabecalho-pagina p { font-size: 9.17px; font-weight: 400; }
+            .cartao { display: flex; flex-direction: column; height: auto; min-height: 0; overflow: hidden; padding: 0; border-radius: 7px; }
+            #tabela-empresas { flex: 1 1 auto; min-height: 0; overflow: hidden; }
+            .browse { flex: 1 1 auto; min-height: 0; align-items: stretch; grid-template-columns: 150px minmax(0, 1fr); gap: 5px; }
+            .acoes-browse { align-self: stretch; }
+            .barra-pesquisa { padding: 5px 7px; }
+            .barra-pesquisa, .barra-pesquisa strong, .barra-pesquisa label { font-size: 11px; font-weight: 700; }
+            .barra-pesquisa input { min-width: 220px; height: 25px; padding: 3px 6px; font-size: 11px; font-weight: 400; }
+            .barra-pesquisa label { display: inline-flex; align-items: center; gap: 5px; }
+            html[data-theme="jotape"] .barra-pesquisa input { width: 280px; min-width: 0; }
+            .modal-overlay { position: fixed; inset: 0; z-index: 20; display: none; align-items: center; justify-content: center; padding: 7px; background: rgba(23, 26, 16, .62); }
+            .modal-overlay.aberto { display: flex; }
+            .modal-overlay iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+            .acoes-browse button, .botao-principal { min-height: 25px; padding: 3px 9px; font-size: 11px; font-weight: 400; }
+            .tabulator, .tabulator .tabulator-header, .tabulator .tabulator-row { font-size: 11px; }
+            .tabulator .tabulator-cell { font-size: 11px; font-weight: 400; padding: 4px 7px; }
+            .tabulator .tabulator-col-title { font-size: 11px; font-weight: 700; }
+            /* Browse limpo: nenhuma alternância de fundo entre as linhas. */
+            .tabulator .tabulator-row:nth-child(even),
+            .tabulator .tabulator-row.tabulator-row-even,
+            .tabulator .tabulator-row.tabulator-row-odd { background: var(--fa-panel) !important; }
+            /* Uma empresa selecionada precisa ficar visível sem reintroduzir linhas alternadas. */
+            .tabulator .tabulator-row.tabulator-selected,
+            .tabulator .tabulator-row.tabulator-row-even.tabulator-selected,
+            .tabulator .tabulator-row.tabulator-row-odd.tabulator-selected,
+            .tabulator .tabulator-row.tabulator-selected .tabulator-cell {
+                background: var(--fa-panel-alt) !important;
+                color: var(--fa-text) !important;
+            }
+            .tabulator .tabulator-row { border-bottom: 1px solid color-mix(in srgb,var(--fa-border) 38%,transparent) !important; }
+            .tabulator .tabulator-cell { border-right: 1px solid color-mix(in srgb,var(--fa-border) 38%,transparent) !important; border-bottom: 0 !important; }
+        </style>
+    </head>
+    <body>
+        <main class="conteudo">
+            <header class="cabecalho-pagina">
+                <div><h1>Empresas + Client &amp; Secret</h1></div>
+            </header>
+            <section class="browse" aria-label="Consulta de empresas">
+                <div class="acoes-browse">
+                    <div class="grupo-acoes"><button id="atualizar" type="button">↻ Atualizar</button></div>
+                    <div class="grupo-acoes">
+                        <button id="novo" type="button">＋ Inserir</button>
+                        <button id="alterar" type="button" disabled>✎ Alterar</button>
+                        <button id="excluir" type="button" disabled>⊖ Excluir</button>
+                        <button id="login" type="button" disabled>♟ Login / Client &amp; Secret</button>
+                    </div>
+                    <div class="grupo-acoes"><button id="imprimir" type="button">▣ Imprimir</button></div>
+                    <div class="grupo-acoes">
+                        <button id="csv" type="button">⇩ CSV</button>
+                        <button id="excel" type="button">▦ Excel</button>
+                    </div>
+                    <div class="grupo-acoes"><button id="colunas" type="button">☷ Colunas</button></div>
+                    <div class="grupo-acoes"><button id="sair" type="button">↪ Sair</button></div>
+                </div>
+                <div class="cartao">
+                    <div class="barra-pesquisa">
+                        <strong>EMPRESAS</strong>
+                        <label>Localizar: <input id="pesquisa" type="search" placeholder="CNPJ, nome, cidade ou UF"></label>
+                    </div>
+                    <div id="tabela-empresas"></div>
+                </div>
+            </section>
+        </main>
+        <div id="mensagem" role="status"></div>
+        <div id="modal-overlay" class="modal-overlay" aria-hidden="true">
+            <iframe title="Atualizar empresa" src="about:blank"></iframe>
+        </div>
+        <script src="dependencias/vendor/xlsx.full.min.js"></script>
+        <script src="dependencias/vendor/tabulator.min.js"></script>
+        <script src="dependencias/themes/TemaFacilApp.js"></script>
+        <script type="module" src="dependencias/js/empresas.js?v=20260827-print"></script>
+    </body>
+</html>
+

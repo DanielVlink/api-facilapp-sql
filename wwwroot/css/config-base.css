@@ -1,0 +1,634 @@
+:root{--navy:#07182d;--blue:#146ef5;--pale:#eef5ff;--line:#dbe4ef;--text:#152238;--muted:#65758b;--ok:#14a66f}*{box-sizing:border-box}body{margin:0;font:14px Inter,Segoe UI,Arial,sans-serif;background:#f6f8fb;color:var(--text);display:flex;min-height:100vh}aside{width:250px;background:var(--navy);color:#fff;padding:24px 16px;display:flex;flex-direction:column;position:fixed;inset:0 auto 0 0}.brand{display:flex;align-items:center;gap:12px;padding:4px 8px 28px}.brand>span{display:grid;place-items:center;width:40px;height:40px;border-radius:11px;background:var(--blue);font-size:24px;font-weight:800}.brand strong,.brand small{display:block}.brand small{color:#8ca2bd;margin-top:3px}nav{display:grid;gap:6px}nav button{border:0;background:transparent;color:#aebed1;text-align:left;padding:12px;border-radius:8px;font-weight:650;cursor:pointer}nav button:hover,nav button.active{background:#152b48;color:#fff}aside footer{margin-top:auto;display:grid;grid-template-columns:12px 1fr;gap:4px 8px;border-top:1px solid #263a54;padding:18px 8px 0}aside footer span{width:9px;height:9px;background:#728198;border-radius:50%;margin-top:4px}aside footer span.ok{background:var(--ok)}aside footer small{grid-column:2;color:#8ca2bd}main{margin-left:250px;width:calc(100% - 250px)}header{height:70px;background:#fff;border-bottom:1px solid var(--line);padding:0 34px;display:flex;align-items:center;justify-content:space-between}header small,header strong{display:block}header small{font-size:10px;letter-spacing:2px;color:var(--blue)}header label{display:flex;align-items:center;gap:10px;color:var(--muted)}input,select,textarea{border:1px solid #cbd7e5;border-radius:7px;padding:10px;background:#fff;font:inherit}header input{width:220px}.page{display:none;padding:32px;max-width:1450px}.page.active{display:block}.title{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}h1{font-size:27px;margin:0 0 6px}h2{margin-top:0}.title p{margin:0;color:var(--muted)}button{cursor:pointer}.primary,.soft{border:0;border-radius:7px;padding:10px 15px;font-weight:700}.primary{background:var(--blue);color:#fff}.soft{background:var(--pale);color:var(--blue)}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:20px}.metrics article,.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px;box-shadow:0 3px 14px #17304d0b}.metrics small{color:var(--muted);font-weight:700}.metrics strong{display:block;font-size:34px;margin-top:12px}.table{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:20px}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:13px;border-bottom:1px solid var(--line)}th{background:#f8fafc;color:var(--muted);font-size:12px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.grid label{display:grid;gap:6px;color:var(--muted)}fieldset{grid-column:1/-1;border:1px solid var(--line);border-radius:8px}.chips{display:flex;flex-wrap:wrap;gap:8px}.chips label{display:flex;align-items:center;gap:5px;background:var(--pale);padding:7px;border-radius:6px}.notice{padding:14px;background:#fff8dd;border:1px solid #f3dd86;border-radius:8px;margin-bottom:18px}.hidden{display:none!important}textarea,pre{width:100%;white-space:pre-wrap;overflow:auto}textarea{margin:14px 0;font-family:Consolas,monospace}.test-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.test-card textarea{min-height:160px}.test-card pre{min-height:80px;background:#0b1728;color:#cfe4ff;padding:12px;border-radius:7px}#toast{position:fixed;right:25px;bottom:25px;background:#152238;color:#fff;padding:12px 18px;border-radius:8px;opacity:0;pointer-events:none;transition:.2s}#toast.show{opacity:1}@media(max-width:900px){aside{width:74px}.brand div,nav button{font-size:0}.brand{padding-left:0}.brand>span{flex:none}main{margin-left:74px;width:calc(100% - 74px)}.grid,.metrics,.test-grid{grid-template-columns:1fr}.page{padding:20px}}
+/* Tema compartilhado: as variáveis são atualizadas pelo seletor em todas as telas. */
+.model-label{display:block;color:var(--blue);font-size:11px;font-weight:800;letter-spacing:1px;margin-bottom:10px}.browse-layout{display:grid;grid-template-columns:150px minmax(0,1fr);gap:8px}.browse-actions{display:grid;align-content:start;gap:6px}.browse-actions button{border:0;border-radius:9px;background:var(--blue);color:#fff;text-align:left;padding:13px 15px;font-weight:700}.browse-panel{border:1px solid var(--line);border-radius:14px;background:var(--pale);overflow:hidden}.browse-toolbar{min-height:42px;padding:7px 10px;display:flex;align-items:center;justify-content:space-between}.browse-toolbar label{display:flex;align-items:center;gap:8px}.browse-toolbar input{min-width:300px;padding:7px}.browse-panel .tabulator{border:0;border-top:1px solid var(--line);border-radius:0;background:transparent}.browse-panel .tabulator-footer{background:var(--pale)}
+.modal-panel{position:fixed;z-index:30;inset:50% auto auto 50%;transform:translate(-50%,-50%);width:min(900px,calc(100vw - 40px));max-height:calc(100vh - 50px);overflow:auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:0 24px 80px #07182d55}.modal-panel:before{content:"";position:fixed;z-index:-1;inset:-100vh -100vw;background:#07182d99}.compact-modal{width:min(620px,calc(100vw - 40px))}.modal-heading{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:16px}.modal-heading small{color:var(--blue);font-weight:800;letter-spacing:1px}.modal-heading h2{margin:5px 0 0}.close-modal,.close-secret{border:0;background:var(--pale);color:var(--text);border-radius:50%;width:36px;height:36px;font-size:20px}.form-intro{color:var(--muted)}.span-2{grid-column:span 2}.modal-grid{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:16px}.modal-grid label{display:grid;gap:6px}.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}.success{padding:13px;background:#e9f9f2;color:#08744c;border:1px solid #a8e1ca;border-radius:8px;margin-bottom:15px}#credentials-table{border-radius:10px;overflow:hidden}
+.company-cnpj-step{width:min(1050px,calc(100vw - 40px));background:var(--pale)}.company-cnpj-step .modal-heading{border-bottom:0;margin-bottom:4px}.company-cnpj-step .form-intro{display:none}.company-cnpj-step .grid{display:block}.company-cnpj-step .grid label:not(:first-child){display:none}.company-cnpj-step .grid label:first-child{display:grid;gap:6px;width:250px;font-size:11px;font-weight:800}.company-cnpj-step .grid input{padding:7px;min-height:26px}.company-cnpj-step .modal-actions{min-height:45px;border-top:0;margin-top:0;padding-top:8px}.company-cnpj-step #save-company{background:var(--navy)}
+.brand .app-logo{width:150px;height:auto;object-fit:contain;background:transparent}.company-editor{padding:22px;border:1px solid color-mix(in srgb,var(--blue) 45%,var(--line));border-radius:16px;background:var(--pale)}.company-editor-heading{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}.company-editor-heading h2{margin:0;font-size:24px}.company-editor-heading p{margin:14px 0 0;color:var(--text)}.company-form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 7px}.company-form-grid label{display:grid;gap:4px;font-size:11px;font-weight:800}.company-form-grid input{min-height:34px;padding:7px}.company-form-grid h3{grid-column:1/-1;margin:4px 0 0;padding-bottom:4px;border-bottom:1px solid color-mix(in srgb,var(--blue) 40%,var(--line));font-size:13px}.company-form-grid .cnpj-field{grid-column:1/-1;max-width:560px}.company-form-grid .wide-2{grid-column:span 2}.company-form-grid .input-action{display:grid;grid-template-columns:1fr auto;gap:7px}.company-form-grid .input-action button{border:0;border-radius:9px;padding:0 16px;background:var(--navy);color:#fff;font-weight:700}.company-logo-field{grid-column:1/-1;display:flex;align-items:center;gap:14px;padding:7px 0}.company-logo-field img{width:76px;height:62px;object-fit:contain;border:1px solid var(--line);border-radius:7px;background:#fff}.company-logo-field label{display:block;padding:8px 12px;border-radius:7px;background:var(--navy);color:#fff}.company-logo-field input{display:none}.company-logo-field small{font-weight:400}.company-save-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:12px}.company-cnpj-step .company-form-grid>:not(.cnpj-field){display:none}.company-cnpj-step .company-editor-heading p{display:block}
+.company-cnpj-step .company-save-actions{display:none}@media(max-width:900px){.company-form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.company-form-grid{grid-template-columns:1fr}.company-form-grid .wide-2{grid-column:auto}}
+/* Correções de contraste e dimensões do Tabulator seguindo o padrão do Console NFe. */
+.tabulator{background:#fff;color:var(--text)}.tabulator .tabulator-header{border-bottom:1px solid var(--line);background:#fff}.tabulator .tabulator-header .tabulator-col{border-right:1px solid var(--line);background:#fff;color:var(--text);font-weight:800}.tabulator .tabulator-header .tabulator-col:hover{background:var(--pale)}.tabulator .tabulator-row{background:#fff}.tabulator .tabulator-row:nth-child(even){background:color-mix(in srgb,var(--pale) 45%,#fff)}.tabulator .tabulator-row:hover,.tabulator .tabulator-row.tabulator-selected{background:var(--pale)}.tabulator .tabulator-placeholder{min-height:74px;background:#fff;color:var(--muted)}.tabulator .tabulator-placeholder .tabulator-placeholder-contents{font-size:15px;font-weight:600}.tabulator .tabulator-footer{border-top:1px solid var(--line);background:#fff;color:var(--muted)}.tabulator .tabulator-footer .tabulator-page{border:1px solid var(--line);background:#fff;color:var(--text)}.tabulator .tabulator-footer .tabulator-page.active{border-color:var(--blue);color:var(--accent-dark)}.tabulator .tabulator-footer .tabulator-page:disabled{color:#aab2bf;background:#f5f6f8}.compact-modal{overflow-x:hidden}.compact-modal .modal-grid{grid-template-columns:1fr}.compact-modal fieldset{padding:12px;border:1px solid var(--line)}.compact-modal .chips{display:flex;flex-wrap:wrap;gap:8px}.compact-modal .chips label{display:inline-flex}.compact-modal .chips input{position:absolute;opacity:0;pointer-events:none}.compact-modal .chips span{padding:7px 11px;border-radius:16px;background:var(--pale);color:var(--accent-dark);font-weight:700}.compact-modal .chips span::after{content:' ×'}.compact-modal .chips label:has(input:not(:checked)) span{background:#eef1f5;color:var(--muted);text-decoration:line-through}.compact-modal .chips label:has(input:not(:checked)) span::after{content:' +'}.compact-modal .modal-actions .primary{flex:1}.notice{color:#714b0a;background:var(--pale);border-color:color-mix(in srgb,var(--blue) 55%,#fff)}
+.header-tools{display:flex;align-items:center;gap:10px}.theme-control input{width:36px;height:36px;padding:3px;cursor:pointer}.compact{padding:8px 10px}.table-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.table-title h2,.table-title p{margin:0}.table-title p{color:var(--muted);margin-top:4px}#result-table-card{margin-top:20px}.tabulator{border:1px solid var(--line);border-radius:8px;font-family:inherit}.tabulator .tabulator-header,.tabulator .tabulator-header .tabulator-col{background:var(--pale);color:var(--text)}
+.sidebar-account{margin-top:auto;padding:18px 8px;border-top:1px solid #ffffff26}.sidebar-account label{display:grid;gap:7px;font-size:12px;font-weight:700}.sidebar-account select{width:100%;border:0;border-radius:9px;padding:10px;background:#f5f8ef;color:#16210c;font-weight:700}.account-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:18px}.account-row strong{font-size:10px;overflow:hidden;text-overflow:ellipsis}.account-row button{border:0;border-radius:9px;padding:8px 11px;background:#ffffff12;color:#fff;font-weight:700}.account-row button:hover{background:#ffffff25}aside footer{margin-top:0}
+@media(max-width:900px){.header-tools>label>span,.compact{display:none}.theme-control input{width:32px}.browse-layout{grid-template-columns:1fr}.browse-actions{grid-template-columns:repeat(3,1fr)}.browse-toolbar input{min-width:130px}}
+/* Paleta oficial herdada do Console NFe; o JavaScript substitui estas variáveis por tema. */
+:root{--navy:#293750;--blue:#f4a62a;--accent-dark:#d9890f;--pale:#fff6e8;--page-bg:#f7f8fa;--line:#d9dee7;--text:#162033;--muted:#788397;--ok:#14ad77}body{background:var(--page-bg)}header small,.soft,.model-label{color:var(--accent-dark)}
+.nav-link{display:block;color:#aebed1;text-align:left;padding:12px;border-radius:8px;font-weight:650;text-decoration:none}.nav-link:hover{background:#152b48;color:#fff}
+#settings.configuration-page.active{display:block;width:100%;max-width:100%;height:calc(100vh - 70px);padding:0;overflow:hidden}#settings.configuration-page iframe{display:block;width:100%!important;min-width:100%;height:100%;border:0;background:var(--page-bg)}
+
+/* Cabeçalho institucional compartilhado com o padrão visual FacilApp. */
+.topbar{position:fixed;z-index:50;inset:0 0 auto 0;height:64px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;background:var(--fa-panel,#fff);border-bottom:1px solid var(--line);box-shadow:0 1px 8px #1720330d}
+.topbar .brand{padding:0;gap:5px}.topbar .brand .app-logo{width:158px}.topbar .brand>.product-name{display:inline-flex;width:auto;min-width:32px;height:19px;align-items:center;justify-content:center;padding:0 7px;border:0;border-radius:5px;color:#fff;background:#d99b1c;box-shadow:none;font-size:10px;font-weight:800;letter-spacing:0;line-height:1}
+.header-tools{display:flex;align-items:center;gap:10px}.theme-picker{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}.theme-picker select{width:142px;height:36px;padding:0 10px}.reset-theme{width:36px;height:36px;padding:0;border:1px solid var(--line);border-radius:9px;font-size:17px}
+.user-summary{display:flex;align-items:center;gap:8px;padding-left:2px}.user-avatar{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--fa-panel-alt,var(--pale));color:var(--fa-primary);font-weight:800}.user-summary strong{max-width:190px;overflow:hidden;color:var(--fa-text);font-size:12px;text-overflow:ellipsis;white-space:nowrap}.user-summary button{padding:7px 9px;border:0;border-radius:7px;background:transparent;color:var(--muted)}.user-summary button:hover{background:var(--fa-panel-alt,var(--pale));color:var(--fa-text)}
+aside{top:64px;padding:20px 14px 0}.menu-label{display:block;padding:0 10px 10px;color:var(--muted);font-size:11px;letter-spacing:.04em}aside footer{margin-top:auto;margin-left:-14px;margin-right:-14px;padding:18px 22px}main{margin-top:64px}main>.page{min-height:calc(100vh - 64px)}
+.test-token{display:flex;align-items:center;min-height:25px;padding:3px 7px;border:1px solid var(--fa-border,var(--line));border-radius:7px;color:var(--fa-muted,var(--muted));background:var(--fa-panel,#fff);font-size:11px}
+@media(max-width:1050px){.user-summary strong{display:none}}
+@media(max-width:760px){.topbar{padding:0 12px}.topbar .brand .app-logo{width:125px}.reset-theme,.user-summary strong{display:none}.theme-picker span{display:none}.theme-picker select{width:120px}}
+
+/* Browse de Empresas reproduz o padrão operacional homologado do Console NFe. */
+#companies.companies-page.active{height:calc(100vh - 64px);max-width:none;padding:10px 5px 5px;display:grid;grid-template-rows:34px minmax(0,1fr);gap:5px;overflow:hidden;font:11px Arial,sans-serif}
+.companies-toolbar{display:flex;align-items:center}.companies-toolbar h1{margin:0;font-size:15px;line-height:26px;font-weight:600}
+#companies .browse-layout{min-width:0;min-height:0;display:grid;grid-template-columns:150px minmax(0,1fr);gap:5px}
+#companies .browse-actions{position:relative;min-height:0;height:100%;display:grid;grid-template-rows:1fr 3.5fr 1fr 2fr 1fr 1fr;gap:5px;overflow:visible}
+#companies .browse-action-group{min-height:0;padding:7px;display:flex;flex-direction:column;gap:7px;justify-content:space-evenly;border:1px solid var(--fa-border,var(--line));border-radius:7px;background:var(--fa-panel,#fff)}
+#companies .browse-actions button{width:100%;min-height:38px;height:38px;padding:0 8px;display:flex;align-items:center;gap:8px;border-radius:7px;text-align:left;font:11px Arial,sans-serif}
+#companies .browse-actions button:disabled{opacity:.5;cursor:not-allowed;filter:saturate(.45)}
+#companies .company-columns-panel{position:absolute;z-index:20;left:154px;bottom:55px;width:190px;padding:0 7px 7px;border:1px solid var(--fa-border,var(--line));border-radius:7px;background:var(--fa-panel,#fff);box-shadow:0 10px 28px #10182038}
+#companies .company-columns-panel header{position:static;height:32px;padding:0;display:flex;align-items:center;justify-content:space-between;border:0;background:transparent}
+#companies .company-columns-panel header strong{font-size:11px}
+#companies .company-columns-panel header button{width:25px;min-height:25px;height:25px;padding:0;display:grid;place-items:center;border-radius:5px;text-align:center}
+#companies #company-columns-options{display:grid;gap:4px}
+#companies #company-columns-options label{height:25px;padding:3px 6px;display:flex;align-items:center;gap:7px;border:1px solid var(--fa-border,var(--line));border-radius:5px;background:var(--fa-field-bg,#fff);font-size:11px}
+#companies #company-columns-options input{width:14px;height:14px;margin:0;padding:0}
+#companies .browse-panel{min-width:0;min-height:0;display:grid;grid-template-rows:40px minmax(0,1fr);overflow:hidden;border-radius:7px;background:var(--fa-panel,#fff)}
+#companies .browse-toolbar{padding:4px 7px;border-bottom:1px solid var(--fa-border,var(--line));background:var(--fa-panel-alt,var(--pale))}
+#companies .browse-toolbar strong{font-size:11px;letter-spacing:.2px}#companies .browse-toolbar label{font-size:11px}
+#companies .browse-toolbar input{width:280px;min-width:0;height:25px;padding:3px 7px;border-radius:5px;font:11px Arial,sans-serif}
+#companies .browse-toolbar button{height:26px;padding:0 10px;border:0;border-radius:5px;color:#fff;background:var(--fa-primary,var(--blue));font:11px Arial,sans-serif}
+#companies-table{min-height:0;height:100%}#companies-table>.tabulator{height:100%!important;border:0;border-radius:0;font:11px Arial,sans-serif}
+#companies .tabulator .tabulator-header .tabulator-col{min-height:28px}#companies .tabulator .tabulator-cell{padding:4px 7px}
+#companies .tabulator-cell strong,#companies .tabulator-cell small{display:block}#companies .tabulator-cell small{margin-top:1px;color:var(--fa-muted,var(--muted));font-size:9px}.company-details-button{height:26px;padding:0 10px;border:0;border-radius:5px;color:#fff;background:var(--fa-primary,var(--blue));font-size:11px}
+
+/* O cadastro permanece sobre o browse para conservar o contexto da seleção. */
+#company-form.company-editor{position:fixed;z-index:80;inset:50% auto auto 50%;transform:translate(-50%,-50%);width:min(780px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto;padding:0 16px 12px;border:1px solid var(--fa-border,var(--line));border-radius:12px;background:var(--fa-panel,#fff);box-shadow:0 0 0 100vmax #1720339c,0 24px 70px #10182055}
+#company-form.company-editor:before{display:none}
+#company-form .company-editor-heading{position:sticky;z-index:2;top:0;margin:0 -16px 8px;padding:10px 16px;align-items:center;background:var(--fa-panel-alt,var(--pale));border-bottom:1px solid var(--fa-border,var(--line))}
+#company-form .company-editor-heading h2{font-size:18px}#company-form .company-editor-heading p{margin:3px 0 0;font-size:11px;color:var(--fa-muted,var(--muted))}
+#company-form .company-close{width:30px;height:30px;padding:0;border:0;border-radius:5px;color:#fff;background:var(--fa-primary,var(--blue));font-size:20px}
+#company-form .company-form-grid{gap:7px 6px}#company-form .company-form-grid input{min-height:25px;height:25px;padding:3px 6px;font-size:11px}#company-form .company-form-grid h3{font-size:11px}
+#company-form .company-form-grid .input-action button{height:25px;padding:0 10px;font-size:11px}#company-form .company-logo-field{padding:7px;border:1px dashed var(--fa-border,var(--line));border-radius:6px;background:var(--fa-field-bg,#fff)}
+#company-form .company-logo-field img{width:58px;height:46px}#company-form .company-save-actions{margin-top:8px}#company-form .company-save-actions button{padding:7px 12px;font-size:11px}
+
+/* O seletor da logo é um botão visual e precisa manter contraste em qualquer tema. */
+#company-form .company-logo-field>label{min-height:25px;padding:0 10px;display:inline-flex;align-items:center;border:1px solid var(--fa-primary,var(--blue));border-radius:5px;background:var(--fa-primary,var(--blue))!important;color:#fff!important;font-size:11px;font-weight:700;cursor:pointer}
+
+/*
+ * PADRÃO COMPACTO FACILAPP
+ * Referência: modal Editar Empresa da API NFe.
+ * Todo campo editável de linha única usa 25 px, fonte de 11 px e padding 3 x 6.
+ * Textareas preservam altura funcional porque exibem JSON, INI e retornos extensos.
+ */
+input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),
+select {
+    height: 25px;
+    min-height: 25px;
+    padding: 3px 6px;
+    border-radius: 5px;
+    font-size: 11px;
+    line-height: 17px;
+}
+
+/* O cabeçalho segue a mesma escala sem comprometer os alvos de ação. */
+.theme-picker select {
+    height: 25px;
+    min-height: 25px;
+    padding: 3px 6px;
+}
+
+.reset-theme {
+    width: 28px;
+    height: 28px;
+}
+
+.user-avatar {
+    width: 28px;
+    height: 28px;
+}
+
+/* Credenciais: linhas, modal e comandos na densidade do modelo oficial. */
+.credentials-panel {
+    padding: 10px;
+}
+
+.credentials-panel .tabulator-row,
+.credentials-panel .tabulator-row .tabulator-cell {
+    min-height: 32px;
+    height: 32px;
+}
+
+.credentials-panel .tabulator-row .tabulator-cell {
+    padding: 3px 7px;
+    font-size: 11px;
+}
+
+/*
+ * PADRÃO ÚNICO DOS BROWSES DE CADASTRO
+ * A grade usa divisões horizontais entre registros e verticais entre colunas.
+ * Empresas e Credenciais compartilham as mesmas medidas homologadas.
+ */
+#companies .tabulator .tabulator-header .tabulator-col,
+#companies .tabulator-row .tabulator-cell,
+.credentials-panel .tabulator .tabulator-header .tabulator-col,
+.credentials-panel .tabulator-row .tabulator-cell {
+    border-right: 1px solid var(--fa-border, var(--line));
+    border-bottom: 1px solid var(--fa-border, var(--line));
+}
+
+#companies .tabulator .tabulator-header .tabulator-col:last-child,
+#companies .tabulator-row .tabulator-cell:last-child,
+.credentials-panel .tabulator .tabulator-header .tabulator-col:last-child,
+.credentials-panel .tabulator-row .tabulator-cell:last-child {
+    border-right: 0;
+}
+
+.credentials-panel,
+.credentials-panel .tabulator {
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: 11px;
+}
+
+.credentials-panel .tabulator-row,
+.credentials-panel .tabulator-row .tabulator-cell {
+    min-height: 35px;
+    height: 35px;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+}
+
+.credentials-panel .tabulator-row .tabulator-cell {
+    padding: 4px 7px;
+}
+
+.credentials-panel .tabulator .tabulator-header,
+.credentials-panel .tabulator .tabulator-header .tabulator-col {
+    min-height: 28px;
+    height: 28px;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.credentials-panel .tabulator .tabulator-header .tabulator-col-title {
+    font-size: 11px;
+    font-weight: 700;
+}
+
+#credentials > .title .primary,
+.credential-details-button {
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: 11px;
+}
+
+#credentials > .title .primary {
+    min-height: 34px;
+    height: 34px;
+    padding: 0 15px;
+}
+
+/* Inclusão e alteração mantêm a mesma densidade dos demais cadastros. */
+#credential-form,
+#credential-form input,
+#credential-form select,
+#credential-form button {
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+#credential-form input,
+#credential-form select {
+    min-height: 25px;
+    height: 25px;
+    padding: 3px 6px;
+    font-size: 11px;
+}
+
+#credential-form .modal-actions {
+    gap: 7px;
+}
+
+#credential-form .modal-actions button {
+    min-height: 34px;
+    height: 34px;
+    padding: 0 15px;
+    font-size: 11px;
+}
+
+.credential-details-button {
+    min-height: 26px;
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 5px;
+    font-size: 11px;
+}
+
+.modal-panel {
+    padding: 14px;
+}
+
+.modal-heading {
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+}
+
+.modal-grid {
+    gap: 7px;
+    margin-bottom: 8px;
+}
+
+.modal-grid label {
+    gap: 2px;
+    font-size: 10px;
+    line-height: 13px;
+}
+
+.modal-actions {
+    gap: 6px;
+    margin-top: 10px;
+    padding-top: 8px;
+}
+
+.modal-actions button {
+    min-height: 28px;
+    padding: 4px 10px;
+    font-size: 11px;
+}
+
+/* Testes: seletores compactos e área de trabalho com menos espaço ocioso. */
+.test-selector select,
+.test-credential select,
+.test-database-type select,
+.test-format select {
+    height: 25px;
+    min-height: 25px;
+    padding: 3px 6px;
+}
+
+.test-workbench {
+    padding: 9px 11px;
+}
+
+.test-request-options {
+    gap: 6px;
+    margin-top: 7px;
+}
+
+.test-request-label textarea {
+    min-height: 130px;
+    padding: 7px;
+    font-size: 11px;
+    line-height: 16px;
+}
+
+.test-actions button {
+    height: 28px;
+    padding: 0 11px;
+    font-size: 11px;
+}
+
+.test-response-label pre {
+    min-height: 85px;
+    padding: 7px;
+    font-size: 11px;
+    line-height: 16px;
+}
+
+/* Browse de Credenciais: replica integralmente o card, a barra e a coluna de ações de Empresas. */
+#credentials.credentials-page.active{height:calc(100vh - 64px);max-width:none;padding:10px 4px 4px;display:grid;grid-template-rows:34px minmax(0,1fr);gap:4px;overflow:hidden;font:11px Arial,sans-serif}
+.credentials-toolbar{display:flex;align-items:center}.credentials-toolbar h1{margin:0;font-size:15px;line-height:26px;font-weight:600}
+#credentials .browse-layout{min-width:0;min-height:0;display:grid;grid-template-columns:150px minmax(0,1fr);gap:4px}
+#credentials .browse-actions{min-height:0;display:grid;grid-template-rows:1fr 2fr 1fr 2fr 1fr 1fr;gap:5px}
+#credentials .browse-action-group{min-height:0;padding:0 8px;display:flex;flex-direction:column;justify-content:space-evenly;border:1px solid var(--fa-border,var(--line));border-radius:7px;background:var(--fa-panel,#fff)}
+#credentials .browse-actions button{width:100%;min-height:34px;height:34px;padding:0 8px;display:flex;align-items:center;gap:8px;border-radius:7px;text-align:left;font:11px Arial,sans-serif}
+#credentials .browse-actions button:disabled{opacity:.5;cursor:not-allowed;filter:saturate(.45)}
+#credentials .browse-panel{min-width:0;min-height:0;display:grid;grid-template-rows:40px 27px minmax(0,1fr);overflow:hidden;border-radius:7px;background:var(--fa-panel,#fff)}
+#credentials .browse-toolbar{padding:4px 7px;border-bottom:1px solid var(--fa-border,var(--line));background:var(--fa-panel-alt,var(--pale))}
+#credentials .browse-toolbar strong{font-size:11px;letter-spacing:.2px}#credentials .browse-toolbar label{font-size:11px}
+#credentials .browse-toolbar input{width:280px;min-width:0;height:25px;padding:3px 7px;border-radius:5px;font:11px Arial,sans-serif}
+#credentials .browse-toolbar button{height:26px;padding:0 10px;border:0;border-radius:5px;color:#fff;background:var(--fa-primary,var(--blue));font:11px Arial,sans-serif}
+#credentials .browse-count{margin:0;padding:5px 7px;color:var(--fa-muted,var(--muted));font-size:9px}
+#credentials-table{min-height:0;height:100%;border-radius:0;overflow:hidden}#credentials-table>.tabulator{height:100%!important;border:0;border-radius:0;font:11px Arial,sans-serif}
+#credentials .tabulator .tabulator-header .tabulator-col{min-height:28px}#credentials .tabulator .tabulator-cell{padding:4px 7px}
+#credentials .credential-details-button{height:26px;padding:0 10px;border:0;border-radius:5px;color:#fff;background:var(--fa-primary,var(--blue));font-size:11px}
+#credential-columns-panel{position:absolute;z-index:20;left:158px;bottom:55px;width:190px;padding:0 7px 7px;border:1px solid var(--fa-border,var(--line));border-radius:7px;background:var(--fa-panel,#fff);box-shadow:0 10px 28px #10182038}
+#credential-columns-panel header{position:static;height:32px;padding:0;display:flex;align-items:center;justify-content:space-between;border:0;background:transparent}
+#credential-columns-panel header strong{font-size:11px}#credential-columns-panel header button{width:25px;min-height:25px;height:25px;padding:0;display:grid;place-items:center;border-radius:5px;text-align:center}
+#credential-columns-options{display:grid;gap:4px}#credential-columns-options label{height:25px;padding:3px 6px;display:flex;align-items:center;gap:7px;border:1px solid var(--fa-border,var(--line));border-radius:5px;background:var(--fa-field-bg,#fff);font-size:11px}
+#credential-columns-options input{width:14px;height:14px;margin:0;padding:0}
+@media(max-width:900px){#credentials.credentials-page.active{height:auto;min-height:calc(100vh - 64px);overflow:visible}#credentials .browse-layout{grid-template-columns:1fr}#credentials .browse-actions{grid-template-columns:repeat(3,1fr);grid-template-rows:none}#credential-columns-panel{left:8px;bottom:auto;top:110px}}
+
+/*
+ * DESTAQUE DOS DADOS PRINCIPAIS
+ * Cidade/UF e Criação repetem tipografia, peso e cor do nome da empresa.
+ * O CNPJ permanece menor para manter a hierarquia visual do cadastro.
+ */
+#companies .tabulator-row .tabulator-cell[tabulator-field="cidade"],
+#companies .tabulator-row .tabulator-cell[tabulator-field="criadoEm"] {
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--fa-text, var(--text));
+}
+
+#companies .tabulator-row .tabulator-cell[tabulator-field="cidade"] {
+    text-transform: uppercase;
+}
+
+/*
+ * HOMOLOGAÇÃO FINAL DOS BROWSES
+ * Esta regra permanece no fim do arquivo para impedir que estilos legados
+ * eliminem as divisões da grade ou reduzam a altura padrão dos registros.
+ */
+#companies .tabulator .tabulator-header .tabulator-col,
+#companies .tabulator-row .tabulator-cell,
+.credentials-panel .tabulator .tabulator-header .tabulator-col,
+.credentials-panel .tabulator-row .tabulator-cell {
+    border-right: 1px solid var(--fa-border, var(--line));
+    border-bottom: 1px solid var(--fa-border, var(--line));
+}
+
+#companies .tabulator .tabulator-header .tabulator-col:last-child,
+#companies .tabulator-row .tabulator-cell:last-child,
+.credentials-panel .tabulator .tabulator-header .tabulator-col:last-child,
+.credentials-panel .tabulator-row .tabulator-cell:last-child {
+    border-right: 0;
+}
+
+.credentials-panel .tabulator-row,
+.credentials-panel .tabulator-row .tabulator-cell {
+    min-height: 35px;
+    height: 35px;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+}
+
+.credentials-panel .tabulator-row .tabulator-cell {
+    padding: 4px 7px;
+}
+
+.credentials-panel .tabulator .tabulator-header,
+.credentials-panel .tabulator .tabulator-header .tabulator-col {
+    min-height: 28px;
+    height: 28px;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+
+/* Ícones e textos da navegação seguem o alinhamento visual do Console NFe. */
+nav button{display:flex;align-items:center;gap:8px}
+.nav-symbol{width:18px;display:inline-flex;flex:0 0 18px;align-items:center;justify-content:center;font-size:15px;line-height:1}
+#dashboard .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+.embedded-page{width:100%;max-width:100%;height:calc(100vh - 64px);padding:0;overflow:hidden}.embedded-page iframe{display:block;width:100%;height:100%;border:0}
+.company-users-modal{position:fixed;z-index:40;inset:50% auto auto 50%;transform:translate(-50%,-50%);width:min(980px,calc(100vw - 28px));height:min(650px,calc(100vh - 28px));display:grid;grid-template-rows:40px minmax(0,1fr);background:var(--fa-panel,#fff);border:1px solid var(--fa-border,var(--line));border-radius:12px;box-shadow:0 0 0 100vmax #07182d99,0 24px 80px #07182d55;overflow:hidden}.company-users-modal-header{display:flex;align-items:center;justify-content:space-between;padding:4px 7px 4px 12px;color:var(--fa-text,var(--text));background:var(--fa-panel-alt,var(--pale));border-bottom:1px solid var(--fa-border,var(--line));cursor:move;user-select:none}.company-users-modal-header strong{font-size:14px}.company-users-modal-header button{width:31px;height:31px;padding:0;border:0;border-radius:5px;color:#fff;background:var(--fa-primary,var(--blue));font-size:20px;cursor:pointer}.company-users-modal iframe{display:block;width:100%;height:100%;border:0}.company-users-modal.hidden{display:none}
+
+/* Autenticação Master bloqueia integralmente o console até o servidor validar a sessão. */
+.master-auth-modal{position:fixed;z-index:200;inset:50% auto auto 50%;transform:translate(-50%,-50%);width:min(620px,calc(100vw - 28px));padding:0 14px 12px;border:1px solid var(--fa-border,var(--line));border-radius:12px;background:var(--fa-panel,#fff);box-shadow:0 0 0 100vmax #07182dcc,0 24px 80px #07182d66;color:var(--fa-text,var(--text))}.master-auth-modal.hidden{display:none}.master-auth-heading{margin:0 -14px 7px;padding:9px 14px;background:var(--fa-panel-alt,var(--pale));border-bottom:1px solid var(--fa-border,var(--line));border-radius:12px 12px 0 0}.master-auth-heading small{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--fa-muted,var(--muted))}.master-auth-heading h2{margin:2px 0 0;font-size:18px}.master-auth-body{display:grid;gap:7px}.master-auth-body p{margin:0;color:var(--fa-muted,var(--muted));font-size:11px}.master-auth-body label{display:grid;gap:3px;font-size:11px;font-weight:700}.master-auth-body input{height:25px;padding:3px 6px;font-size:11px}.master-auth-actions{display:flex;justify-content:flex-end;margin-top:7px}.master-auth-actions button{height:34px;min-width:130px;padding:0 14px}.master-auth-error{min-height:14px;color:#a52323!important}.master-auth-locked>header,.master-auth-locked>aside,.master-auth-locked>main{pointer-events:none;user-select:none}
+
+/* Browse e detalhes de Credenciais no mesmo padrão compacto do Console NFe. */
+#credentials{max-width:none}#credentials>.title{width:min(790px,100%);margin:0 auto 8px}#credentials>.title h1{font-size:23px}#credentials>.title p{display:none}
+.credentials-panel{width:min(790px,100%);margin:0 auto;padding:14px;border:1px solid var(--fa-border,var(--line));border-radius:12px;background:var(--fa-panel,#fff)}
+.credentials-panel>p{margin:0 0 12px;color:#07885c;font-size:14px}.credentials-panel .tabulator{border:1px solid var(--fa-border,var(--line));border-radius:0;font-size:12px;overflow:hidden}.credentials-panel .tabulator-row{min-height:44px}.credentials-panel .tabulator-row .tabulator-cell{height:44px;padding:6px 10px;display:inline-flex;align-items:center;white-space:nowrap}.credentials-panel .tabulator-row .tabulator-cell:last-child{justify-content:center}.credentials-panel .tabulator-col:last-child,.credentials-panel .tabulator-cell:last-child{overflow:visible}
+.credential-details-button{min-height:32px;padding:0 14px;border:1px solid var(--fa-primary,var(--blue));border-radius:7px;color:var(--fa-text);background:var(--fa-field-bg,#fff);font-size:12px}.credential-details-button:hover{color:#fff;background:var(--fa-primary,var(--blue))}
+#credential-detail.credential-detail{width:min(650px,calc(100vw - 30px));padding:0 16px 16px;border-radius:12px;background:var(--fa-panel,#fff)}
+#credential-detail .modal-heading{margin:0 -16px 10px;padding:12px 16px;background:var(--fa-panel-alt,var(--pale));border-radius:12px 12px 0 0}#credential-detail .modal-heading h2{margin:0;font-size:18px}
+#credential-detail .modal-heading .close-credential-detail{width:31px;height:31px;padding:0;border:0;border-radius:5px;color:#fff;background:var(--fa-primary,var(--blue));font-size:20px}
+.credential-detail-body{padding:12px 16px;display:grid;gap:12px;border:1px solid var(--fa-border,var(--line));border-radius:10px;background:var(--fa-panel,#fff)}.credential-detail-body>label{display:grid;gap:6px}.credential-detail-body strong{font-weight:500}.credential-detail-summary{display:grid;grid-template-columns:1fr 1fr;gap:18px}.credential-detail-summary label{display:grid;gap:7px}.credential-detail-summary strong{font-size:18px}.credential-detail-body code{display:block;padding:10px;border-radius:5px;color:var(--fa-text);background:var(--fa-panel-alt,var(--pale))}.credential-detail-body fieldset{padding:0;border:0}.credential-detail-body legend{margin-bottom:8px}.detail-permissions{display:flex;flex-wrap:wrap;gap:7px}.detail-permissions span{padding:5px 12px;border-radius:15px;color:var(--fa-primary-dark,var(--accent-dark));background:var(--fa-panel-alt,var(--pale));font-size:11px;font-weight:700}
+.modal-panel{box-shadow:0 0 0 100vmax #07182d99,0 24px 80px #07182d55}.modal-panel:before{display:none}
+
+/* Todo modal de credencial usa um card com cabeçalho forte e o botão X dentro do cabeçalho. */
+#credential-form,
+#credential-secret,
+#credential-detail.credential-detail {
+    padding-top: 0;
+    overflow: hidden;
+}
+
+#credential-form .modal-heading,
+#credential-secret .modal-heading,
+#credential-detail .modal-heading {
+    margin: 0 -14px 8px;
+    padding: 7px 9px 7px 14px;
+    align-items: center;
+    border: 0;
+    border-radius: 14px 14px 0 0;
+    color: var(--fa-text, var(--text));
+    background: var(--fa-panel-alt, var(--pale));
+    border-bottom: 1px solid var(--fa-border, var(--line));
+    cursor: move;
+    user-select: none;
+}
+
+#credential-detail .modal-heading {
+    margin-right: -16px;
+    margin-left: -16px;
+    padding-right: 9px;
+    padding-left: 16px;
+    border-radius: 12px 12px 0 0;
+}
+
+#credential-form .modal-heading small,
+#credential-secret .modal-heading small,
+#credential-form .modal-heading h2,
+#credential-secret .modal-heading h2,
+#credential-detail .modal-heading h2 {
+    margin: 0;
+    color: var(--fa-text, var(--text));
+}
+
+#credential-form .modal-heading small,
+#credential-secret .modal-heading small {
+    opacity: .85;
+}
+
+#credential-form .close-modal,
+#credential-secret .close-secret,
+#credential-detail .modal-heading .close-credential-detail {
+    flex: 0 0 31px;
+    width: 31px;
+    height: 31px;
+    padding: 0;
+    border: 0;
+    border-radius: 5px;
+    color: #fff;
+    background: var(--fa-primary, var(--blue));
+    font-size: 20px;
+}
+
+/* O mesmo seletor fecha tanto pelo X quanto pelo rodapé. O botão textual
+   precisa manter sua largura natural; aplicar 31 px nele cortava "Fechar". */
+#credential-detail .modal-actions .close-credential-detail,
+#credential-detail .modal-actions .primary {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 0;
+    height: 31px;
+    padding: 0 12px;
+    white-space: nowrap;
+    font-size: 11px;
+}
+
+#credential-form .modal-actions {
+    justify-content: flex-end;
+}
+
+#credential-form .modal-actions .close-modal,
+#credential-form .modal-actions .primary {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 110px;
+    height: 34px;
+    padding: 0 15px;
+    border: 0;
+    border-radius: 7px;
+    font-size: 11px;
+}
+
+#credential-form .modal-actions .close-modal {
+    color: var(--fa-text, var(--text));
+    background: var(--fa-panel-alt, var(--pale));
+}
+
+/* Permissões compactas conforme o modal aprovado da API NFe. */
+#credential-form fieldset {
+    padding: 7px;
+}
+
+#credential-form .chips {
+    gap: 7px;
+}
+
+#credential-form .chips label {
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
+#credential-form .chips span {
+    min-height: 24px;
+    padding: 4px 9px;
+    border-radius: 14px;
+    font-size: 11px;
+    line-height: 16px;
+}
+
+/* Bancada única de testes, equivalente à referência operacional da NFE. */
+#tests.tests-page{max-width:980px;margin:0 auto;padding-top:26px}#tests>.title{margin-bottom:10px}#tests>.title h1{font-size:27px}#tests>.title p{margin-top:4px}
+.test-selector{padding:7px 12px;border:1px solid var(--fa-border,var(--line));border-radius:10px;background:var(--fa-panel,#fff)}.test-selector label{display:grid;grid-template-columns:120px 1fr;align-items:center;gap:6px}.test-selector select{height:28px;padding:2px 7px}
+.test-workbench{margin-top:10px;padding:12px 14px;border:1px solid var(--fa-border,var(--line));border-radius:12px;background:var(--fa-panel,#fff)}.test-workbench-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:15px}.test-workbench-heading h2{margin:0 0 4px;font-size:23px}.test-workbench-heading p{margin:0;color:var(--fa-muted,var(--muted))}.test-workbench-heading code{flex:none;padding:10px;border-radius:9px;background:var(--fa-panel-alt,var(--pale));font-size:11px}.test-workbench-heading code b{margin-right:7px;color:#f18700}
+.test-request-options{display:grid;grid-template-columns:minmax(280px,1fr) 280px 280px;gap:8px;margin-top:10px}.test-credential,.test-database-type,.test-format{display:grid;gap:4px;font-weight:700}.test-credential select,.test-database-type select,.test-format select{height:27px;padding:2px 7px}.test-request-options .hidden{display:none}.test-database-type select:disabled{opacity:.55;cursor:not-allowed}.test-request-label,.test-response-label{display:grid;gap:5px;margin-top:9px;font-weight:500}.test-request-label textarea{min-height:160px;margin:0;padding:12px;border-radius:7px;resize:vertical}.test-help{margin:10px 0;color:var(--fa-muted,var(--muted))}.test-actions{display:grid;grid-template-columns:1fr auto;gap:8px}.test-actions button{height:31px;padding:0 15px}.test-response-label pre{min-height:110px;margin:0;padding:12px;border:1px solid var(--fa-border,var(--line));border-radius:7px;background:var(--fa-field-bg,#fff)}
+
+/*
+ * PADRÃO TIPOGRÁFICO DO BROWSE DE EMPRESAS
+ * Medidas homologadas: cabeçalho 28 px, linhas 35 px e células 4 x 7 px.
+ */
+#companies,
+#companies .tabulator {
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: 11px;
+}
+
+#companies .tabulator-row {
+    min-height: 35px;
+    height: 35px;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+}
+
+#companies .tabulator-row .tabulator-cell {
+    height: 35px;
+    padding: 4px 7px;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+}
+
+#companies .tabulator-cell strong {
+    font-size: 11px;
+    font-weight: 700;
+}
+
+#companies .tabulator-cell small {
+    font-size: 9px;
+    font-weight: 400;
+}
+
+#companies .tabulator .tabulator-header,
+#companies .tabulator .tabulator-header .tabulator-col {
+    min-height: 28px;
+    height: 28px;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+#companies .tabulator .tabulator-header .tabulator-col-title {
+    font-size: 11px;
+    font-weight: 700;
+}
+
+#companies .browse-toolbar,
+#companies .browse-toolbar input,
+#companies .browse-toolbar button,
+#companies .browse-actions button,
+#companies .company-details-button,
+#companies .tabulator-footer,
+#companies .tabulator-footer button,
+#companies .tabulator-footer select {
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: 11px;
+}
+
+/* Regras finais de densidade: mantidas no fim para vencer estilos históricos. */
+.credentials-panel {
+    padding: 10px;
+}
+
+.credentials-panel .tabulator-row,
+.credentials-panel .tabulator-row .tabulator-cell {
+    min-height: 35px;
+    height: 35px;
+}
+
+.credentials-panel .tabulator-row .tabulator-cell {
+    padding: 4px 7px;
+    font-size: 11px;
+}
+
+.credential-details-button {
+    min-height: 26px;
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 5px;
+    font-size: 11px;
+}
+
+.test-selector select,
+.test-credential select,
+.test-database-type select,
+.test-format select {
+    height: 25px;
+    min-height: 25px;
+    padding: 3px 6px;
+}
+
+.test-workbench {
+    padding: 9px 11px;
+}
+
+.test-request-options {
+    gap: 6px;
+    margin-top: 7px;
+}
+
+.test-request-label textarea {
+    min-height: 130px;
+    padding: 7px;
+    font-size: 11px;
+    line-height: 16px;
+}
+
+.test-actions button {
+    height: 28px;
+    padding: 0 11px;
+    font-size: 11px;
+}
+
+.test-response-label pre {
+    min-height: 85px;
+    padding: 7px;
+    font-size: 11px;
+    line-height: 16px;
+}

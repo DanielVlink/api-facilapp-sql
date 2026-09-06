@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lançador Claude Bridge</title>
+    <style>
+        :root {
+            color-scheme: light;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            box-sizing: border-box;
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 24px;
+            background: #dbecc9;
+            color: #16220d;
+        }
+
+        .card {
+            padding: 16px;
+            border: 1px solid #91aa6c;
+            border-radius: 7px;
+            background: #edf6e5;
+        }
+
+        h1 {
+            margin: 0 0 7px;
+            font-size: 22px;
+        }
+
+        p {
+            margin: 0 0 7px;
+            font-size: 13px;
+        }
+
+        label {
+            display: block;
+            margin-top: 7px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        input,
+        textarea {
+            box-sizing: border-box;
+            width: 100%;
+            margin-top: 3px;
+            border: 1px solid #91aa6c;
+            border-radius: 7px;
+            background: #f4faee;
+            color: #16220d;
+            font: 11px Consolas, monospace;
+        }
+
+        input {
+            height: 25px;
+            padding: 3px 6px;
+        }
+
+        textarea {
+            min-height: 58px;
+            padding: 6px;
+            resize: vertical;
+        }
+
+        .acoes {
+            display: flex;
+            gap: 7px;
+            margin-top: 7px;
+        }
+
+        button {
+            min-height: 25px;
+            padding: 3px 10px;
+            border: 0;
+            border-radius: 7px;
+            background: #596f18;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        #resultado {
+            display: none;
+            margin-top: 7px;
+            padding: 7px;
+            border-radius: 7px;
+            background: #d1e5b8;
+            overflow-wrap: anywhere;
+            font: 11px Consolas, monospace;
+        }
+
+        #resultado a {
+            color: #263900;
+        }
+    </style>
+</head>
+<body>
+    <main class="card">
+        <h1>Lançador Claude Bridge</h1>
+        <p>Informe um caminho absoluto do Windows. O conversor aceita <strong>\</strong> e <strong>/</strong>, preserva acentos e gera a URL UTF-8.</p>
+
+        <label for="base">Endereço base</label>
+        <input id="base" autocomplete="off">
+
+        <label for="token">Token da Bridge</label>
+        <input id="token" type="password" autocomplete="off">
+
+        <label for="caminho">Caminho do arquivo</label>
+        <textarea id="caminho" placeholder="C:\FacilApp\Curso\index.html"></textarea>
+
+        <div class="acoes">
+            <button type="button" id="gerar">Gerar e abrir</button>
+            <button type="button" id="copiar">Copiar URL</button>
+        </div>
+
+        <div id="resultado">
+            <strong>URL gerada:</strong><br>
+            <a id="urlGerada" target="_blank" rel="noopener"></a>
+        </div>
+    </main>
+
+    <script>
+        'use strict';
+
+        const baseInput = document.getElementById('base');
+        const tokenInput = document.getElementById('token');
+        const caminhoInput = document.getElementById('caminho');
+        const resultado = document.getElementById('resultado');
+        const urlGerada = document.getElementById('urlGerada');
+
+        baseInput.value = window.location.origin;
+        tokenInput.value = new URLSearchParams(window.location.search).get('token') || '';
+
+        /**
+         * Converte um caminho Windows em segmentos seguros de URL UTF-8.
+         * Aceita barras normais e invertidas sem alterar os caracteres originais.
+         */
+        function converteUtf8(caminho) {
+            return caminho
+                .trim()
+                .split(/[\\/]+/u)
+                .filter(Boolean)
+                .map((segmento) => encodeURIComponent(segmento))
+                .join('/');
+        }
+
+        function criarUrl() {
+            const base = baseInput.value.trim().replace(/\/+$/u, '');
+            const token = tokenInput.value.trim();
+            const caminho = caminhoInput.value.trim();
+
+            if (!base || !token || !caminho) {
+                window.alert('Informe o endereço, o token e o caminho do arquivo.');
+                return '';
+            }
+
+            return `${base}/HTML/${converteUtf8(caminho)}?token=${encodeURIComponent(token)}`;
+        }
+
+        function mostrarUrl(url) {
+            urlGerada.href = url;
+            urlGerada.textContent = url;
+            resultado.style.display = 'block';
+        }
+
+        document.getElementById('gerar').addEventListener('click', () => {
+            const url = criarUrl();
+            if (!url) {
+                return;
+            }
+
+            mostrarUrl(url);
+            window.open(url, '_blank', 'noopener');
+        });
+
+        document.getElementById('copiar').addEventListener('click', async () => {
+            const url = criarUrl();
+            if (!url) {
+                return;
+            }
+
+            mostrarUrl(url);
+            await navigator.clipboard.writeText(url);
+        });
+    </script>
+</body>
+</html>

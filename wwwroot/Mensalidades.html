@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="jotape">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mensalidades | FacilApp SQL</title>
+    <link rel="stylesheet" href="dependencias/vendor/tabulator.min.css">
+    <link rel="stylesheet" href="dependencias/css/cadastros.css">
+    <link rel="stylesheet" href="dependencias/themes/TemaFacilApp.css">
+    <style>
+        body{padding:5px;font-family:Inter,"Segoe UI",Arial,sans-serif;font-size:14px}.conteudo{display:flex;flex-direction:column;min-height:calc(100vh - 10px);padding:5px}.cabecalho-pagina{margin-bottom:5px;padding:7px;border-radius:7px}.cabecalho-pagina h1{margin:0;font-size:27px}.cabecalho-pagina p{margin:3px 0 0;font-size:10px}.browse{flex:1;min-height:0;grid-template-columns:150px minmax(0,1fr);gap:5px}.acoes-browse{display:grid;grid-template-rows:1fr 2fr 1fr 2fr 1fr;gap:5px}.grupo-acoes{display:flex;flex-direction:column;gap:5px;justify-content:space-evenly;padding:5px;border-radius:7px}.grupo-acoes button{width:100%;min-height:38px;height:38px;padding:0 8px;text-align:left}.cartao{display:flex;flex-direction:column;min-height:0;padding:0;border-radius:7px;overflow:hidden}.barra-pesquisa{padding:5px 7px;font-size:11px;font-weight:700}.barra-pesquisa label{display:inline-flex;align-items:center;gap:5px}.barra-pesquisa input{width:280px;height:25px;padding:3px 6px;font-size:11px}.tabulator{font-size:11px}.tabulator .tabulator-cell{font-size:11px;padding:4px 7px}.tabulator .tabulator-col-title{font-size:11px}.tabulator .tabulator-row:nth-child(even),.tabulator .tabulator-row.tabulator-row-even,.tabulator .tabulator-row.tabulator-row-odd{background:var(--fa-panel)!important}.tabulator .tabulator-row.tabulator-selected,.tabulator .tabulator-row.tabulator-selected .tabulator-cell{background:var(--fa-panel-alt)!important;color:var(--fa-text)!important}.modal-overlay{position:fixed;inset:0;z-index:20;display:none;background:rgba(23,26,16,.62)}.modal-overlay.aberto{display:block}.modal-overlay iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent}
+    </style>
+</head>
+<body>
+<main class="conteudo">
+    <header class="cabecalho-pagina"><h1>Mensalidades</h1><p>Controle de pagamentos e prazo de uso das empresas.</p></header>
+    <section class="browse" aria-label="Controle de mensalidades">
+        <div class="acoes-browse">
+            <div class="grupo-acoes"><button id="atualizar" type="button">↻ Atualizar</button></div>
+            <div class="grupo-acoes"><button id="lancar" type="button" disabled>＋ Lançar pagamento</button><button id="historico" type="button" disabled>☷ Atualizar mensalidade</button></div>
+            <div class="grupo-acoes"><button id="imprimir" type="button">▣ Imprimir</button></div>
+            <div class="grupo-acoes"><button id="csv" type="button">⇩ CSV</button><button id="excel" type="button">▦ Excel</button></div>
+            <div class="grupo-acoes"><button id="sair" type="button">↪ Sair</button></div>
+        </div>
+        <div class="cartao"><div class="barra-pesquisa"><strong>MENSALIDADES</strong> <label>Localizar: <input id="pesquisa" type="search" placeholder="Empresa, CNPJ ou situação"></label></div><div id="tabela-mensalidades"></div></div>
+    </section>
+</main>
+<div id="mensagem" role="status"></div><div id="modal-overlay" class="modal-overlay" aria-hidden="true"><iframe title="Atualizar mensalidade" src="about:blank"></iframe></div>
+<script src="dependencias/vendor/xlsx.full.min.js"></script><script src="dependencias/vendor/tabulator.min.js"></script><script src="dependencias/themes/TemaFacilApp.js"></script><script type="module" src="dependencias/js/mensalidades.js"></script>
+</body>
+</html>

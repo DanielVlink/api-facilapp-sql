@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style id="facilapp-tema-critico">html[data-theme="jotape"],html[data-theme="jotape"] body{background:#bfd5a5;color:#171a10}html[data-theme="jotape"] iframe{background:#bfd5a5}</style>
+    <title>Atualizar login da empresa | FacilApp SQL</title>
+    <style>
+        :root { font-family: Arial, sans-serif; color:#15210f; background:transparent; } *{box-sizing:border-box}
+        html,body{background:transparent} body{min-height:100vh;margin:0;padding:7px;display:flex;align-items:center;justify-content:center;font-size:11px}
+        .modal{position:relative;width:min(560px,calc(100vw - 14px));border:1px solid #8ca965;border-radius:12px;overflow:hidden;background:#d8e8c2;box-shadow:0 2px 0 rgba(57,76,26,.2)}
+        .cabecalho{display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:7px 12px;background:#c8dfa9;border-bottom:1px solid #9db879;cursor:move} h1{margin:0;font-size:18px}.subtitulo{margin:2px 0 0;color:#52633d}
+        .fechar,button{height:25px;padding:3px 9px;border:0;border-radius:5px;background:#56671b;color:#fff;font:700 11px Arial,sans-serif;cursor:pointer}.fechar{width:30px;height:30px;padding:0;font-size:18px}button:hover{filter:brightness(1.08)}button:active{transform:translateY(1px)}
+        form{padding:8px 12px 10px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:5px 7px}label{display:flex;flex-direction:column;gap:3px;font-weight:700}.full{grid-column:1/-1}.linha-principal{display:grid;grid-template-columns:minmax(0,1fr) 150px 160px;gap:7px;align-items:end}.campo-acao{display:grid;grid-template-columns:minmax(0,1fr) 108px;gap:7px;align-items:end}.campo-acao label,.linha-principal label{min-width:0}.botao-gerar{width:108px;white-space:nowrap}input,select{width:100%;height:25px;padding:3px 6px;border:1px solid #9db879;border-radius:5px;background:#eff6e7;color:#15210f;font:inherit}input[readonly]{background:#e5edd9;color:#52633d}.observacao{grid-column:1/-1;margin:1px 0 0;color:#52633d;font-weight:400}.observacao.erro{color:#8a2d22}.credencial-lida{grid-column:1/-1;margin:0;padding:5px 7px;border:1px solid #9db879;border-radius:5px;background:#e8f1da;color:#425217;line-height:16px}.credencial-lida[hidden]{display:none}.acoes{display:flex;justify-content:flex-end;gap:7px;margin-top:7px;padding-top:7px;border-top:1px solid #9db879}.suave{background:#c8dfa9;color:#425217;border:1px solid #9db879}.credencial-overlay{position:fixed;inset:0;z-index:30;display:none;background:rgba(23,26,16,.62)}.credencial-overlay.aberto{display:block}.credencial-overlay iframe{width:100%;height:100%;border:0;background:transparent}
+    </style>
+</head>
+<body>
+    <section class="modal" aria-label="Atualizar login da empresa">
+        <header class="cabecalho"><div><h1>Login da empresa</h1><p class="subtitulo">Cadastre ou altere o acesso da empresa selecionada.</p></div><button class="fechar" type="button" aria-label="Fechar">×</button></header>
+        <form autocomplete="off"><div class="grid"><div class="linha-principal full"><label>Nome do usuário *<input name="nome" required></label><label>CNPJ<input id="cnpj-empresa" maxlength="15" readonly></label><label>Sistema *<select name="sistemaId" required><option value="curso">curso</option><option value="gourmet">gourmet</option><option value="cereais">cereais</option><option value="quimicos">quimicos</option><option value="nfe">nfe</option><option value="pedidos">pedidos</option></select></label></div><div class="campo-acao full"><label>Usuário / Client *<input name="usuario" required></label><button id="gerar-client" type="button" class="suave botao-gerar">Gerar client</button></div><div class="campo-acao full"><label>Senha / Secret *<input name="senha" type="password" required></label><button id="gerar-secret" type="button" class="suave botao-gerar">Gerar secret</button></div><small class="observacao">Você pode informar qualquer senha/secret ou gerar um novo.</small><div class="campo-acao full"><label>Credencial SQL *<select name="credencialSql" id="credencial-sql" required><option value="">Carregando credenciais...</option></select></label><button id="gerar-credencial" type="button" class="suave botao-gerar">Gerar credencial</button></div><label class="full">Credencial NFe (opcional)<input id="arquivo-credencial-nfe" type="file" accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"><small id="status-credencial-nfe" class="observacao">Selecione o XLS exportado pela credencial NFe quando a integração estiver ativa.</small></label><div id="dados-credencial-nfe" class="credencial-lida" hidden></div><p class="observacao">A senha nunca é exibida. O arquivo NFe é usado apenas para identificar a credencial.</p></div><div class="acoes"><button class="suave" id="cancelar" type="button">Cancelar</button><button type="submit">Gravar login</button></div></form>
+    </section>
+    <div id="credencial-overlay" class="credencial-overlay" aria-hidden="true"><iframe id="credencial-frame" title="Credencial SQL"></iframe></div>
+    <script src="dependencias/vendor/xlsx.full.min.js"></script>
+    <script>
+        (() => {
+            const parametros = new URLSearchParams(window.location.search);
+            const empresaId = parametros.get("empresaId") || "";
+            const usuarioId = parametros.get("usuarioId") || "";
+            const apiBase = parametros.get("api") || (window.location.port === "3000" ? `http://${location.hostname}:5050` : "");
+            const accessToken = localStorage.getItem("facilapp_access_token") || (() => { try { return window.parent?.facilAppAccessToken || ""; } catch { return ""; } })();
+            const authHeaders = (json = false) => ({ ...(json ? { "Content-Type": "application/json" } : {}), ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}) });
+            const form = document.querySelector("form");
+            const status = document.querySelector("#status-credencial-nfe");
+            const dadosCredencialNfe = document.querySelector("#dados-credencial-nfe");
+            const botaoGravar = form.querySelector('button[type="submit"]');
+            const fechar = () => { if (window.parent !== window) window.parent.postMessage({ tipo: "fechar-modal" }, "*"); else history.back(); };
+            document.querySelector(".fechar").addEventListener("click", fechar);
+            document.querySelector("#cancelar").addEventListener("click", fechar);
+            form.elements.nome.value = parametros.get("nome") || "";
+            form.elements.usuario.value = parametros.get("usuario") || "";
+            form.elements.sistemaId.value = parametros.get("sistemaId") || "curso";
+            document.querySelector("#cnpj-empresa").value = parametros.get("cnpj") || "";
+            document.querySelector("#gerar-client").addEventListener("click", () => {
+                const bytes = new Uint8Array(12);
+                crypto.getRandomValues(bytes);
+                form.elements.usuario.value = Array.from(bytes, byte => byte.toString(16).padStart(2, "0")).join("");
+                form.elements.usuario.focus();
+                form.elements.usuario.select();
+            });
+            document.querySelector("#gerar-secret").addEventListener("click", () => {
+                const bytes = new Uint8Array(24);
+                crypto.getRandomValues(bytes);
+                const secret = Array.from(bytes, byte => byte.toString(16).padStart(2, "0")).join("");
+                form.elements.senha.value = secret;
+                form.elements.senha.type = "text";
+                form.elements.senha.focus();
+                form.elements.senha.select();
+                status.classList.remove("erro");
+                status.textContent = "Secret gerado. Copie-o agora: ele não será exibido novamente após gravar.";
+            });
+            const gerarCredencial = () => {
+                const nomeUsuario = (form.elements.nome.value || "Usuário").trim();
+                const cnpj = (parametros.get("cnpj") || "").replace(/\D/g, "");
+                const nomeCredencial = [nomeUsuario, cnpj].filter(Boolean).join(" - ");
+                const url = new URL("UpdateCredenciais.html", location.href); url.searchParams.set("nome", nomeCredencial); url.searchParams.set("api", apiBase); url.searchParams.set("tema", document.documentElement.dataset.theme || "jotape"); url.searchParams.set("retorno", "login");
+                const overlay = document.querySelector("#credencial-overlay");
+                document.querySelector("#credencial-frame").src = url.href;
+                overlay.classList.add("aberto");
+                overlay.setAttribute("aria-hidden", "false");
+            };
+            document.querySelector("#gerar-credencial").addEventListener("click", gerarCredencial);
+            if (usuarioId) { form.elements.senha.required = false; form.elements.senha.placeholder = "Deixe em branco para manter a senha"; }
+            const carregarCredenciais = async (selecionarId = parametros.get("clientId") || "") => {
+                const select = document.querySelector("#credencial-sql");
+                try {
+                    const resposta = await fetch(`${apiBase}/api/console/credenciais`, { headers: authHeaders() });
+                    const dados = await resposta.json();
+                    if (!resposta.ok) throw new Error(dados.erro || "Falha ao carregar credenciais");
+                    const lista = (dados.credenciais || []).filter(credencial => credencial.ativo !== false);
+                    select.innerHTML = '<option value="">Selecione a credencial SQL</option>' + lista.map(credencial => `<option value="${String(credencial.clientId || credencial.client_id || credencial.id || "").replace(/"/g, "&quot;")}">${String(credencial.nome || credencial.name || credencial.clientId || "Credencial").replace(/[<&>]/g, "")}</option>`).join("");
+                    select.value = selecionarId;
+                } catch (erro) { select.innerHTML = '<option value="">Nenhuma credencial SQL disponível</option>'; status.classList.add("erro"); status.textContent = erro.message; }
+            };
+            carregarCredenciais();
+            window.addEventListener("message", evento => {
+                if (evento.data?.tipo !== "credencial-fechar" && evento.data?.tipo !== "credencial-gravada") return;
+                const overlay = document.querySelector("#credencial-overlay");
+                overlay.classList.remove("aberto");
+                overlay.setAttribute("aria-hidden", "true");
+                document.querySelector("#credencial-frame").removeAttribute("src");
+                if (evento.data.tipo === "credencial-gravada") carregarCredenciais(evento.data.clientId || "");
+            });
+            const arquivoNfe = document.querySelector("#arquivo-credencial-nfe");
+            let credencialNfeValidada = null;
+            const normalizarCabecalho = valor => String(valor || "").toLocaleLowerCase("pt-BR").replace(/[^a-z0-9]/g, "");
+            const lerXlsDaCredencial = async arquivo => {
+                if (!arquivo || !/\.xlsx?$/i.test(arquivo.name)) throw new Error("Selecione um arquivo XLS ou XLSX.");
+                if (typeof XLSX === "undefined") throw new Error("O leitor de planilhas não está disponível.");
+                const livro = XLSX.read(await arquivo.arrayBuffer(), { type: "array" });
+                const planilha = livro.Sheets[livro.SheetNames[0]];
+                const linhas = XLSX.utils.sheet_to_json(planilha, { header: 1, defval: "" });
+                const cabecalhos = (linhas[0] || []).map(normalizarCabecalho);
+                const valores = linhas[1] || [];
+                const localizar = nomes => {
+                    const indice = cabecalhos.findIndex(cabecalho => nomes.includes(cabecalho));
+                    return indice >= 0 ? String(valores[indice] || "").trim() : "";
+                };
+                const clientId = localizar(["clientid", "idcliente"]);
+                const clientSecret = localizar(["clientsecret", "secretcliente", "segredocliente"]);
+                const usuario = localizar(["usuario", "user", "username", "login"]);
+                const nomeCredencial = localizar(["nomedacredencial", "nomecredencial", "descricaocredencial", "descricao", "nome", "name"]);
+                if (!clientId || !clientSecret) throw new Error("O XLS não contém Client ID e Client Secret válidos.");
+                return { nome: arquivo.name, usuario, nomeCredencial, clientId };
+            };
+            arquivoNfe.addEventListener("change", async () => {
+                const arquivo = arquivoNfe.files?.[0];
+                if (!arquivo) return;
+                try {
+                    credencialNfeValidada = await lerXlsDaCredencial(arquivo);
+                    status.classList.remove("erro");
+                    const idMascarado = `${credencialNfeValidada.clientId.slice(0, 5)}…${credencialNfeValidada.clientId.slice(-4)}`;
+                    const partes = [
+                        `<strong>XLS válido:</strong> ${escaparHtml(credencialNfeValidada.nome)}`,
+                        credencialNfeValidada.nomeCredencial ? `<strong>Credencial:</strong> ${escaparHtml(credencialNfeValidada.nomeCredencial)}` : "",
+                        credencialNfeValidada.usuario ? `<strong>Usuário:</strong> ${escaparHtml(credencialNfeValidada.usuario)}` : "",
+                        `<strong>Client ID:</strong> ${escaparHtml(idMascarado)}`
+                    ].filter(Boolean);
+                    dadosCredencialNfe.innerHTML = partes.join(" &nbsp;•&nbsp; ");
+                    dadosCredencialNfe.hidden = false;
+                    status.textContent = "Arquivo conferido e pronto para gravar. O Client Secret não é exibido.";
+                } catch (erro) {
+                    arquivoNfe.value = "";
+                    credencialNfeValidada = null;
+                    dadosCredencialNfe.hidden = true;
+                    dadosCredencialNfe.textContent = "";
+                    status.classList.add("erro");
+                    status.textContent = erro.message;
+                }
+            });
+            const escaparHtml = valor => String(valor ?? "").replace(/[&<>\"]/g, caractere => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", "\"":"&quot;" })[caractere]);
+            form.addEventListener("submit", async evento => {
+                evento.preventDefault();
+                if (!empresaId) { status.classList.add("erro"); status.textContent = "Empresa não identificada."; return; }
+                if (!accessToken) { status.classList.add("erro"); status.textContent = "Faça login no Console para obter o access token."; return; }
+                const payload = { sistema_id: form.elements.sistemaId.value, nome: form.elements.nome.value.trim(), usuario: form.elements.usuario.value.trim(), senha: form.elements.senha.value, client_id: form.elements.credencialSql.value };
+                if (!payload.nome || !payload.usuario || !payload.client_id || (!usuarioId && !payload.senha)) { status.classList.add("erro"); status.textContent = "Preencha nome, usuário, senha e credencial SQL."; return; }
+                botaoGravar.disabled = true; botaoGravar.textContent = "Gravando..."; status.classList.remove("erro");
+                try {
+                    const url = usuarioId ? `${apiBase}/api/console/empresas/${encodeURIComponent(empresaId)}/usuarios/${encodeURIComponent(usuarioId)}` : `${apiBase}/api/console/empresas/${encodeURIComponent(empresaId)}/usuarios`;
+                    const resposta = await fetch(url, { method: usuarioId ? "PUT" : "POST", headers: authHeaders(true), body: JSON.stringify(payload) });
+                    const dados = await resposta.json().catch(() => ({}));
+                    if (!resposta.ok || dados.ok === false) throw new Error(dados.erro || "Não foi possível gravar o login.");
+                    if (window.parent !== window) window.parent.postMessage({ tipo: "login-gravado" }, "*"); else history.back();
+                } catch (erro) { status.classList.add("erro"); status.textContent = erro.message; botaoGravar.disabled = false; botaoGravar.textContent = "Gravar login"; }
+            });
+            const modal = document.querySelector(".modal"), cabecalho = document.querySelector(".cabecalho"); let movendo = false, x = 0, y = 0, l = 0, t = 0;
+            cabecalho.addEventListener("pointerdown", evento => { if (evento.target.closest("button")) return; movendo = true; x = evento.clientX; y = evento.clientY; const retangulo = modal.getBoundingClientRect(); l = retangulo.left; t = retangulo.top; modal.style.position = "fixed"; modal.style.margin = "0"; modal.style.left = `${l}px`; modal.style.top = `${t}px`; cabecalho.setPointerCapture(evento.pointerId); });
+            cabecalho.addEventListener("pointermove", evento => { if (movendo) { modal.style.left = `${l + evento.clientX - x}px`; modal.style.top = `${t + evento.clientY - y}px`; } });
+            cabecalho.addEventListener("pointerup", () => { movendo = false; });
+        })();
+    </script>
+</body>
+</html>
+

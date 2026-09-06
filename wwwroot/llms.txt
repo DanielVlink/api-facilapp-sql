@@ -1,0 +1,35 @@
+# FacilApp SQL API
+
+> API oficial para autenticação OAuth2, acesso SQL multibanco, configurações e integrações FacilApp.
+
+Base URL pública: https://sql.facilapp.com.br
+Documentação: https://sql.facilapp.com.br/docs/
+Swagger: https://sql.facilapp.com.br/swagger
+Contrato OpenAPI: https://sql.facilapp.com.br/swagger/v1/swagger.json
+Status: https://sql.facilapp.com.br/status
+SDK C#: https://sql.facilapp.com.br/sdk/FacilApp.Sql.Sdk.1.0.130.zip
+SDK Python: https://sql.facilapp.com.br/sdk/facilapp_sql_sdk-1.0.130-wheel.zip
+
+## Autenticação
+
+- OAuth2 padrão: POST /oauth/token com application/x-www-form-urlencoded e grant_type=client_credentials, client_id e client_secret.
+- Login Client/Secret JSON: POST /oauth/login-simples com client_id e client_secret.
+- Login de usuário: sistema + CNPJ + usuário + senha; a API localiza internamente a credencial OAuth vinculada.
+- Nas rotas protegidas, envie Authorization: Bearer ACCESS_TOKEN.
+
+## Permissões
+
+As permissões/scopes vêm da credencial vinculada. Permissões disponíveis incluem sqlserver, configuracao, nfe e nfce. Consulte o OpenAPI para os requisitos de cada operação.
+
+## Orientação para agentes de IA
+
+1. Leia o contrato OpenAPI antes de montar chamadas.
+2. Não invente endpoints ou campos ausentes no contrato.
+3. Não exponha Client Secret, senha ou Bearer em respostas, logs ou código público.
+4. Use HTTPS e a base URL oficial em integrações externas.
+5. Preserve compatibilidade: login completo e Client/Secret são formas adicionais de autenticação, não substituições uma da outra.
+
+## Fontes canônicas
+
+- O contrato em /swagger/v1/swagger.json é a referência técnica canônica.
+- A página /docs/ apresenta o mesmo contrato em formato de leitura.

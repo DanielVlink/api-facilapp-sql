@@ -1,0 +1,77 @@
+/* Paletas compartilhadas, adaptadas da referência oficial do Console NFe. */
+:root,html[data-theme="default"],body[data-theme="default"]{--fa-primary:#145f97;--fa-primary-dark:#0f4f7f;--fa-accent:#145f97;--fa-background:#f3f7fb;--fa-panel:#fff;--fa-panel-alt:#edf3f8;--fa-border:#dfe8f1;--fa-field-bg:#fff;--fa-text:#1b2b3d;--fa-muted:#6d7f91;--sidebar-bg:#293750;--sidebar-active:#145f97}
+html[data-theme="v1-cyberpunk"],body[data-theme="v1-cyberpunk"]{--fa-primary:#7a00ff;--fa-primary-dark:#ff00e6;--fa-accent:#00f7ff;--fa-background:#050815;--fa-panel:#0a0f24;--fa-panel-alt:#131c38;--fa-border:#123a52;--fa-field-bg:#0f1830;--fa-text:#e0f7ff;--fa-muted:#7a9cb8;--sidebar-bg:#0a0f24;--sidebar-active:#170b33}
+html[data-theme="jotape"],body[data-theme="jotape"]{--fa-primary:#59651f;--fa-primary-dark:#414b16;--fa-accent:#778337;--fa-background:#bfd5a5;--fa-panel:#d8e9c5;--fa-panel-alt:#c9ddb0;--fa-border:#9caf77;--fa-field-bg:#eef5e5;--fa-text:#171a10;--fa-muted:#596044;--sidebar-bg:#eef5e5;--sidebar-active:#59651f;--sidebar-text:#1f385c;--sidebar-footer:#d8e9c5}
+html[data-theme="dark-tech"],body[data-theme="dark-tech"]{--fa-primary:#075985;--fa-primary-dark:#0f4f7f;--fa-accent:#38bdf8;--fa-background:#0b0f19;--fa-panel:#111827;--fa-panel-alt:#172235;--fa-border:#1f293d;--fa-field-bg:#1e293b;--fa-text:#cbd5e1;--fa-muted:#94a3b8;--sidebar-bg:#111827;--sidebar-active:#1e293b}
+html[data-theme="obsidian-gold"],body[data-theme="obsidian-gold"]{--fa-primary:#b48c48;--fa-primary-dark:#8c6a30;--fa-accent:#f0d28d;--fa-background:#0d1117;--fa-panel:#161b22;--fa-panel-alt:#21262d;--fa-border:#30363d;--fa-field-bg:#0d1117;--fa-text:#c9d1d9;--fa-muted:#8b949e;--sidebar-bg:#161b22;--sidebar-active:#3a3020}
+html[data-theme="deep-teal"],body[data-theme="deep-teal"]{--fa-primary:#0d9488;--fa-primary-dark:#0f766e;--fa-accent:#2dd4bf;--fa-background:#06141b;--fa-panel:#11212d;--fa-panel-alt:#19313f;--fa-border:#253e4b;--fa-field-bg:#0d1c26;--fa-text:#cbd5e1;--fa-muted:#94a3b8;--sidebar-bg:#11212d;--sidebar-active:#19313f}
+html[data-theme="codex-dark"],body[data-theme="codex-dark"]{--fa-primary:#2a3641;--fa-primary-dark:#334552;--fa-accent:#0873b9;--fa-background:#1b1b1b;--fa-panel:#222;--fa-panel-alt:#262626;--fa-border:#383838;--fa-field-bg:#252525;--fa-text:#e7e7e7;--fa-muted:#a6a6a6;--sidebar-bg:#1e1e1e;--sidebar-active:#2a3641}
+
+/* A paleta do menu de browse e compartilhada por todas as telas. */
+html[data-theme],body[data-theme]{--fa-menu-card-bg:var(--fa-panel);--fa-menu-border:var(--fa-border);--fa-menu-button-bg:var(--fa-primary);--fa-menu-button-hover:var(--fa-primary-dark);--fa-menu-button-disabled-bg:color-mix(in srgb,var(--fa-muted) 70%,var(--fa-panel));--fa-menu-button-text:#fff}
+html[data-theme="jotape"],body[data-theme="jotape"]{--fa-menu-card-bg:var(--fa-panel);--fa-menu-button-disabled-bg:#a4ae8d;--fa-menu-button-text:#eef2e5}
+
+html[data-theme],body[data-theme]{--navy:var(--sidebar-bg);--blue:var(--fa-primary);--accent-dark:var(--fa-primary-dark);--pale:var(--fa-panel-alt);--page-bg:var(--fa-background);--line:var(--fa-border);--text:var(--fa-text);--muted:var(--fa-muted);--cor-principal:var(--fa-primary);--cor-principal-escura:var(--fa-primary-dark);--cor-suave:var(--fa-panel-alt);--cor-fundo:var(--fa-background);--cor-linha:var(--fa-border);--cor-texto:var(--fa-text);background:var(--fa-background);color:var(--fa-text)}
+html[data-theme] aside{background:var(--sidebar-bg)}html[data-theme] nav button.active,html[data-theme] nav button:hover{background:var(--sidebar-active);color:#fff}
+html[data-theme] header,html[data-theme] .card,html[data-theme] .metrics article,html[data-theme] .browse-panel,html[data-theme] .tabulator,html[data-theme] .tabulator .tabulator-row,html[data-theme] .tabulator .tabulator-header,html[data-theme] .tabulator .tabulator-header .tabulator-col,html[data-theme] .modal-panel{background:var(--fa-panel);color:var(--fa-text);border-color:var(--fa-border)}
+html[data-theme] input,html[data-theme] select,html[data-theme] textarea,html[data-theme] pre{background:var(--fa-field-bg);color:var(--fa-text);border-color:var(--fa-border)}
+html[data-theme] .tabulator .tabulator-row:nth-child(even){background:var(--fa-panel-alt)}html[data-theme] .tabulator .tabulator-row:hover,html[data-theme] .tabulator .tabulator-row.tabulator-selected{background:color-mix(in srgb,var(--fa-accent) 14%,var(--fa-panel));color:var(--fa-text)}
+html[data-theme] .tabulator .tabulator-footer,html[data-theme] .tabulator .tabulator-footer .tabulator-page,html[data-theme] .tabulator .tabulator-footer .tabulator-page-size{background:var(--fa-panel-alt);color:var(--fa-text);border-color:var(--fa-border)}
+html[data-theme] .tabulator .tabulator-footer .tabulator-page.active{background:var(--fa-primary);color:#fff}
+html[data-theme] .primary,html[data-theme] .browse-actions button,html[data-theme] .settings-grid button[type="submit"],html[data-theme] .test-card button,html[data-theme] .input-action button{background:var(--fa-primary);border-color:var(--fa-primary);color:#fff}
+html[data-theme] .primary:hover,html[data-theme] .browse-actions button:hover,html[data-theme] .settings-grid button[type="submit"]:hover,html[data-theme] .test-card button:hover,html[data-theme] .input-action button:hover{background:var(--fa-primary-dark)}
+
+html[data-theme] .acoes-browse .grupo-acoes{background:var(--fa-menu-card-bg);border-color:var(--fa-menu-border)}
+html[data-theme] .acoes-browse .grupo-acoes button{background:var(--fa-menu-button-bg);border-color:var(--fa-menu-button-bg);color:var(--fa-menu-button-text);font:400 11px Arial,sans-serif}
+html[data-theme] .acoes-browse .grupo-acoes button:hover:not(:disabled){background:var(--fa-menu-button-hover);border-color:var(--fa-menu-button-hover)}
+html[data-theme] .acoes-browse .grupo-acoes button:disabled{background:var(--fa-menu-button-disabled-bg);border-color:var(--fa-menu-button-disabled-bg);color:var(--fa-menu-button-text);opacity:1}
+html[data-theme] .topbar{background:var(--fa-panel);border-color:var(--fa-border);color:var(--fa-text)}
+html[data-theme] .topbar .soft,html[data-theme] .user-avatar{background:var(--fa-panel-alt);border-color:var(--fa-border);color:var(--fa-primary)}
+html[data-theme] .topbar .product-name{background:var(--fa-primary);color:var(--fa-menu-button-text)}
+
+/*
+ * Jotapê possui superfícies claras no cabeçalho e no menu. Somente ações e
+ * o item de navegação selecionado recebem o verde escuro da marca.
+ */
+html[data-theme="jotape"] aside{color:var(--fa-text);background:var(--fa-field-bg);border-right:1px solid var(--fa-border)}
+html[data-theme="jotape"] .brand strong{color:var(--fa-text)}
+html[data-theme="jotape"] .brand small{color:var(--fa-muted)}
+html[data-theme="jotape"] nav button{color:var(--sidebar-text);background:transparent}
+html[data-theme="jotape"] nav button:hover,html[data-theme="jotape"] nav button.active{color:#fff;background:var(--fa-primary)}
+html[data-theme="jotape"] .sidebar-account{color:var(--fa-text);border-color:var(--fa-border)}
+html[data-theme="jotape"] .sidebar-account select{color:var(--fa-text);background:var(--fa-panel);border:1px solid var(--fa-border)}
+html[data-theme="jotape"] .account-row button{color:#fff;background:var(--fa-primary)}
+html[data-theme="jotape"] aside footer{color:var(--fa-text);background:var(--sidebar-footer);border-color:var(--fa-border)}
+html[data-theme="jotape"] aside footer small{color:var(--fa-muted)}
+html[data-theme="jotape"] header{background:var(--fa-panel);border-color:var(--fa-border)}
+html[data-theme="jotape"] .topbar{background:var(--fa-panel);border-color:var(--fa-border);color:var(--fa-text)}
+html[data-theme="jotape"] .topbar .app-logo-light{display:block}
+html[data-theme="jotape"] .topbar .app-logo-dark{display:none}
+html[data-theme="jotape"] .metrics article{background:var(--fa-field-bg)}
+
+/* A marca branca oferece contraste correto sobre as superfícies escuras. */
+.app-logo-dark{display:none}
+html:is([data-theme="v1-cyberpunk"],[data-theme="dark-tech"],[data-theme="obsidian-gold"],[data-theme="deep-teal"],[data-theme="codex-dark"]) .app-logo-light{display:none}
+html:is([data-theme="v1-cyberpunk"],[data-theme="dark-tech"],[data-theme="obsidian-gold"],[data-theme="deep-teal"],[data-theme="codex-dark"]) .app-logo-dark{display:block}
+
+/* Barras do Tabulator acompanham a paleta ativa, inclusive no browse filho. */
+html[data-theme] .tabulator .tabulator-tableholder,
+html[data-theme] .tabulator .tabulator-footer {
+    scrollbar-color: var(--fa-primary) var(--fa-panel-alt);
+    scrollbar-width: thin;
+}
+html[data-theme] .tabulator .tabulator-tableholder::-webkit-scrollbar,
+html[data-theme] .tabulator .tabulator-footer::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+}
+html[data-theme] .tabulator .tabulator-tableholder::-webkit-scrollbar-track,
+html[data-theme] .tabulator .tabulator-footer::-webkit-scrollbar-track {
+    background: var(--fa-panel-alt);
+}
+html[data-theme] .tabulator .tabulator-tableholder::-webkit-scrollbar-thumb,
+html[data-theme] .tabulator .tabulator-footer::-webkit-scrollbar-thumb {
+    border: 2px solid var(--fa-panel-alt);
+    border-radius: 6px;
+    background: var(--fa-primary);
+}
